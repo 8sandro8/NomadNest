@@ -1,0 +1,212 @@
+:root {
+    /* --- PALETA DE COLORES (Definida por IA) --- */
+    --color-primary: #255D4A;    /* Bosque Tech */
+    --color-secondary: #F2994A;  /* Atardecer Productivo */
+    --color-bg: #F5F1EB;         /* Niebla Suave */
+    --color-text: #1F2933;       /* Pizarra Profunda */
+    
+    /* --- TIPOGRAFÍAS --- */
+    --font-titles: 'Sora', sans-serif;
+    --font-body: 'Nunito', sans-serif;
+}
+
+/* --- RESET Y BASE --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.6;
+}
+
+h1, h2, h3 {
+    font-family: var(--font-titles);
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+}
+
+/* --- HEADER Y NAVEGACIÓN --- */
+.main-header {
+    background-color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    position: sticky; /* El menú se queda fijo al bajar */
+    top: 0;
+    z-index: 1000;
+}
+
+.logo {
+    font-family: var(--font-titles);
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--color-primary);
+}
+
+nav ul {
+    display: flex;         /* Menú horizontal */
+    list-style: none;      /* Sin puntos */
+    gap: 2rem;            /* Espacio entre enlaces */
+}
+
+nav a {
+    text-decoration: none;
+    color: var(--color-text);
+    font-weight: 700;
+    transition: color 0.3s ease;
+}
+
+nav a:hover {
+    color: var(--color-secondary); /* Naranja al pasar el ratón */
+}
+
+/* --- HERO SECTION (Portada) --- */
+.hero-section {
+    background-color: var(--color-primary);
+    color: var(--color-bg);
+    padding: 5rem 2rem;
+    text-align: center;
+    /* Un degradado sutil para dar textura */
+    background-image: linear-gradient(135deg, #255D4A 0%, #1e4d3d 100%);
+}
+
+.hero-content h1 {
+    color: var(--color-bg);
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+/* --- PRODUCTOS (Grid) --- */
+.products-section {
+    padding: 3rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.products-section h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+}
+
+.products-grid {
+    display: grid;
+    /* Rejilla responsive automática */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Efecto Hover en tarjetas (Requisito LM "Animaciones") */
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.card-image {
+    background-color: #ddd; /* Placeholder gris mientras no hay fotos */
+    height: 200px;
+    width: 100%;
+    object-fit: cover;
+}
+
+.card-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.price {
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--color-text);
+    margin: 1rem 0;
+    display: block;
+}
+
+/* --- BOTONES --- */
+.btn-primary {
+    background-color: var(--color-secondary);
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 12px;
+    font-family: var(--font-titles);
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #d68b45; /* Un poco más oscuro */
+}
+
+.btn-secondary {
+    background-color: transparent;
+    border: 2px solid var(--color-primary);
+    color: var(--color-primary);
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%; /* Botón ancho en tarjetas */
+    margin-top: auto; /* Empuja el botón al fondo de la tarjeta */
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+/* --- FOOTER --- */
+footer {
+    text-align: center;
+    padding: 2rem;
+    background-color: #e8e4de;
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 3rem;
+}
+
+/* --- RESPONSIVE (Móvil) --- */
+@media (max-width: 768px) {
+    .main-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    nav ul {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+}
