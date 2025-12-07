@@ -1,16 +1,17 @@
+/* --- VARIABLES GLOBALES --- */
 :root {
-    /* --- PALETA DE COLORES (Definida por IA) --- */
-    --color-primary: #255D4A;    /* Bosque Tech */
-    --color-secondary: #F2994A;  /* Atardecer Productivo */
-    --color-bg: #F5F1EB;         /* Niebla Suave */
-    --color-text: #1F2933;       /* Pizarra Profunda */
+    --color-primary: #255D4A;    /* Verde Bosque Oscuro (Textos y botones) */
+    --color-secondary: #E08E43;  /* Naranja Madera (Hover y detalles) */
+    --color-accent: #1F2933;     /* Gris Oscuro Tech (Texto general) */
     
-    /* --- TIPOGRAFÍAS --- */
-    --font-titles: 'Sora', sans-serif;
+    /* NUEVO FONDO: Verde Niebla Suave (Naturaleza) */
+    --color-bg: #E8F5E9;         
+    
+    --font-heading: 'Sora', sans-serif;
     --font-body: 'Nunito', sans-serif;
 }
 
-/* --- RESET Y BASE --- */
+/* --- RESET BÁSICO --- */
 * {
     margin: 0;
     padding: 0;
@@ -19,163 +20,134 @@
 
 body {
     font-family: var(--font-body);
-    background-color: var(--color-bg);
-    color: var(--color-text);
+    background-color: var(--color-bg); /* Aquí se aplica el nuevo color verde suave */
+    color: var(--color-accent);
     line-height: 1.6;
 }
 
-h1, h2, h3 {
-    font-family: var(--font-titles);
-    color: var(--color-primary);
-    margin-bottom: 0.5rem;
+html {
+    scroll-behavior: smooth;
 }
 
-/* --- HEADER Y NAVEGACIÓN --- */
+/* --- HEADER & NAV --- */
 .main-header {
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.95); /* Blanco semi-transparente */
     padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    position: sticky; /* El menú se queda fijo al bajar */
+    box-shadow: 0 4px 20px rgba(37, 93, 74, 0.1); /* Sombra verdosa sutil */
+    position: sticky;
     top: 0;
     z-index: 1000;
+    backdrop-filter: blur(5px);
 }
 
 .logo {
-    font-family: var(--font-titles);
+    font-family: var(--font-heading);
     font-weight: 800;
     font-size: 1.5rem;
     color: var(--color-primary);
 }
 
 nav ul {
-    display: flex;         /* Menú horizontal */
-    list-style: none;      /* Sin puntos */
-    gap: 2rem;            /* Espacio entre enlaces */
+    display: flex;
+    gap: 20px;
+    list-style: none;
+    align-items: center;
 }
 
 nav a {
     text-decoration: none;
-    color: var(--color-text);
+    color: var(--color-primary);
     font-weight: 700;
-    transition: color 0.3s ease;
+    transition: color 0.3s;
 }
 
 nav a:hover {
-    color: var(--color-secondary); /* Naranja al pasar el ratón */
+    color: var(--color-secondary);
 }
 
-/* --- HERO SECTION (Portada) --- */
+/* Selector de Idiomas */
+#language-selector {
+    padding: 5px 10px;
+    border-radius: 20px;
+    border: 1px solid #C8E6C9; /* Borde verde suave */
+    background-color: white;
+    font-family: var(--font-body);
+    font-weight: bold;
+    cursor: pointer;
+    color: var(--color-primary);
+}
+
+/* --- HERO SECTION (PORTADA) --- */
 .hero-section {
-    background-color: var(--color-primary);
-    color: var(--color-bg);
-    padding: 5rem 2rem;
+    /* AQUÍ CARGAMOS TU FOTO LOCAL */
+    background: linear-gradient(rgba(20, 40, 30, 0.5), rgba(20, 40, 30, 0.5)), url('../img/hero-bg.jpg');
+    
+    /* Si por lo que sea no has guardado la foto aún, descomenta la línea de abajo para usar una de internet temporalmente: */
+    /* background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1449156493391-d2cfa28e468b?q=80&w=1920'); */
+
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; /* Efecto Parallax */
+    height: 85vh; /* Bastante alto para que impacte */
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
-    /* Un degradado sutil para dar textura */
-    background-image: linear-gradient(135deg, #255D4A 0%, #1e4d3d 100%);
+    color: white;
+    border-bottom: 5px solid var(--color-primary);
 }
 
 .hero-content h1 {
-    color: var(--color-bg);
-    font-size: 2.5rem;
+    font-family: var(--font-heading);
+    font-size: 4rem;
     margin-bottom: 1rem;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.7);
+    font-weight: 800;
 }
 
 .hero-content p {
-    font-size: 1.2rem;
-    margin-bottom: 2rem;
-    opacity: 0.9;
+    font-size: 1.4rem;
+    margin-bottom: 2.5rem;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-/* --- PRODUCTOS (Grid) --- */
-.products-section {
-    padding: 3rem 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.products-section h2 {
-    text-align: center;
-    margin-bottom: 2rem;
-    font-size: 2rem;
-}
-
-.products-grid {
-    display: grid;
-    /* Rejilla responsive automática */
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-}
-
-.card {
-    background: white;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    display: flex;
-    flex-direction: column;
-}
-
-/* Efecto Hover en tarjetas (Requisito LM "Animaciones") */
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-}
-
-.card-image {
-    background-color: #ddd; /* Placeholder gris mientras no hay fotos */
-    height: 200px;
-    width: 100%;
-    object-fit: cover;
-}
-
-.card-content {
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-}
-
-.price {
-    font-weight: 800;
-    font-size: 1.2rem;
-    color: var(--color-text);
-    margin: 1rem 0;
-    display: block;
-}
-
-/* --- BOTONES --- */
+/* BOTONES */
 .btn-primary {
     background-color: var(--color-secondary);
     color: white;
     border: none;
-    padding: 0.8rem 2rem;
-    border-radius: 12px;
-    font-family: var(--font-titles);
+    padding: 15px 35px;
+    border-radius: 50px;
     font-weight: 700;
-    font-size: 1rem;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 15px rgba(224, 142, 67, 0.4);
 }
 
 .btn-primary:hover {
-    background-color: #d68b45; /* Un poco más oscuro */
+    background-color: #ff9f4d;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(224, 142, 67, 0.6);
 }
 
 .btn-secondary {
-    background-color: transparent;
-    border: 2px solid var(--color-primary);
+    background-color: white;
     color: var(--color-primary);
-    padding: 0.6rem 1.2rem;
+    border: 2px solid var(--color-primary);
+    padding: 10px 20px;
     border-radius: 8px;
-    font-weight: 700;
     cursor: pointer;
-    width: 100%; /* Botón ancho en tarjetas */
-    margin-top: auto; /* Empuja el botón al fondo de la tarjeta */
-    transition: all 0.3s ease;
+    font-weight: 700;
+    width: 100%;
+    margin-top: 15px;
+    transition: background 0.3s, color 0.3s;
 }
 
 .btn-secondary:hover {
@@ -183,30 +155,132 @@ nav a:hover {
     color: white;
 }
 
-/* --- FOOTER --- */
-footer {
-    text-align: center;
-    padding: 2rem;
-    background-color: #e8e4de;
-    color: #666;
-    font-size: 0.9rem;
-    margin-top: 3rem;
+/* --- SECCIONES GENERALES --- */
+.products-section, .admin-section {
+    max-width: 1200px;
+    margin: 5rem auto;
+    padding: 0 2rem;
 }
 
-/* --- RESPONSIVE (Móvil) --- */
+h2 {
+    font-family: var(--font-heading);
+    color: var(--color-primary);
+    font-size: 2.5rem;
+    margin-bottom: 2.5rem;
+    text-align: center;
+}
+
+/* --- GRID DE PRODUCTOS (Perfectamente cuadrado) --- */
+.products-grid {
+    display: grid;
+    /* Columnas automáticas pero con un ancho ideal */
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2.5rem;
+}
+
+/* --- TARJETAS (CARDS) --- */
+.card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    /* Sombra más suave y natural */
+    box-shadow: 0 10px 30px rgba(37, 93, 74, 0.08);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(37, 93, 74, 0.1);
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(37, 93, 74, 0.15);
+}
+
+.card-content {
+    padding: 1.8rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card h3 {
+    color: var(--color-primary);
+    font-size: 1.4rem;
+    margin-bottom: 0.8rem;
+}
+
+.card p {
+    color: #555;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+}
+
+.price {
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: var(--color-accent);
+}
+
+/* --- SECCIÓN ADMIN --- */
+.admin-section {
+    background: white !important; /* Forzar fondo blanco en el panel */
+    box-shadow: 0 4px 25px rgba(0,0,0,0.05) !important;
+    border: 2px dashed #C8E6C9 !important;
+}
+
+/* --- SECCIÓN CONTACTO Y MAPA --- */
+.contact-container {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr; /* Mapa un poco más grande */
+    gap: 0; /* Sin hueco, estilo panel unido */
+    max-width: 1100px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 15px 40px rgba(37, 93, 74, 0.1);
+}
+
+.contact-info {
+    padding: 3rem;
+    background: #F1F8E9; /* Fondo verde muy clarito para el texto */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.contact-item {
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 1.1rem;
+    color: #2c3e50;
+}
+
+.contact-item span {
+    font-size: 1.4rem;
+    background: white;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    color: var(--color-primary);
+}
+
+/* El mapa llena el contenedor */
+.map-wrapper {
+    height: 100%;
+    min-height: 400px;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-    .main-header {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    nav ul {
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .hero-content h1 {
-        font-size: 2rem;
-    }
+    .hero-content h1 { font-size: 2.8rem; }
+    .contact-container { grid-template-columns: 1fr; }
+    .map-wrapper { height: 300px; }
 }

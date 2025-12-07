@@ -4,24 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NomadNest | Naturaleza y Conexión</title>
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Sora:wght@600;800&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
     <header class="main-header">
-        <div class="logo">
-            NomadNest 🌲
-        </div>
+        <div class="logo">NomadNest 🌲</div>
         <nav>
             <ul>
-                <li><a href="#hero">Inicio</a></li>
-                <li><a href="#products">Alojamientos</a></li>
-                <li><a href="#contact">Contacto</a></li>
+                <li><a href="#hero" data-translate="nav_home">Inicio</a></li>
+                <li><a href="#about" data-translate="nav_about">Quiénes somos</a></li>
+                <li><a href="#products" data-translate="nav_nests">Alojamientos</a></li>
+                <li><a href="#contact" data-translate="nav_contact">Contacto</a></li>
+                <li>
+                    <select id="language-selector">
+                        <option value="es">🇪🇸 ES</option>
+                        <option value="en">🇬🇧 EN</option>
+                    </select>
+                </li>
             </ul>
         </nav>
     </header>
@@ -29,39 +32,81 @@
     <main>
         <section id="hero" class="hero-section">
             <div class="hero-content">
-                <h1>Tu oficina en el bosque</h1>
-                <p>Cabañas con WiFi de alta velocidad en plena naturaleza.</p>
-                <button class="btn-primary">Explorar Nidos</button>
+                <h1 data-translate="hero_title">Tu oficina en el bosque</h1>
+                <p data-translate="hero_subtitle">Cabañas con WiFi de alta velocidad en plena naturaleza.</p>
+                <button class="btn-primary" data-translate="hero_cta">Explorar Nidos</button>
+            </div>
+        </section>
+
+        <section id="about" style="padding: 5rem 2rem; background: white; text-align: center;">
+            <div style="max-width: 800px; margin: 0 auto;">
+                <h2 data-translate="about_title" style="color: var(--color-primary); margin-bottom: 1.5rem;">🌲 Nuestra Raíz</h2>
+                <p data-translate="about_p1" style="font-size: 1.1rem; color: #555; margin-bottom: 1rem; line-height: 1.8;">
+                    NomadNest nació en Gallur de una necesidad sencilla: queríamos programar escuchando pájaros, no el tráfico. Somos un equipo de desarrolladores y amantes de la montaña que se negaron a elegir entre una buena conexión de fibra y el aire puro.
+                </p>
+                <p data-translate="about_p2" style="font-size: 1.1rem; color: #555; line-height: 1.8;">
+                    Nuestro objetivo es revitalizar la España Vaciada atrayendo talento digital. Convertimos antiguos refugios en oficinas de alto rendimiento, demostrando que con la formación de <strong>San Valero</strong> se puede trabajar para cualquier parte del mundo.
+                </p>
             </div>
         </section>
 
         <section id="products" class="products-section">
-            <h2>Nuestros Nidos Destacados</h2>
-            
+            <h2 data-translate="section_featured">Nuestros Nidos Destacados</h2>
             <div class="products-grid" id="products-container">
                 </div>
         </section>
 
-        <section id="admin" class="admin-section" style="padding: 2rem; max-width: 800px; margin: 3rem auto; background: white; border-radius: 16px; border: 2px dashed var(--color-primary);">
-            <h2 style="text-align: center; margin-bottom: 2rem;">🛠️ Gestión de Nidos (CRUD)</h2>
+        <section id="admin" class="admin-section">
+            <h2 style="text-align: center; margin-bottom: 2rem;" data-translate="admin_title">🛠️ Gestión de Nidos (CRUD)</h2>
             
-            <form id="form-crear" style="display: grid; gap: 1rem;">
+            <form id="form-crear" style="display: grid; gap: 1rem;" enctype="multipart/form-data">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <input type="text" id="nombre" placeholder="Nombre" required style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px;">
                     <input type="number" id="precio" placeholder="Precio (€)" required style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px;">
                 </div>
+                
+                <label style="font-weight: bold; color: var(--color-primary);">📸 Añadir Foto Principal:</label>
+                <input type="file" id="foto" accept="image/*" style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px; background: white;">
+                
                 <input type="text" id="descripcion" placeholder="Descripción corta" required style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px;">
                 <input type="number" id="wifi" placeholder="Velocidad WiFi (Mb)" required style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px;">
                 
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Guardar Nuevo Nido</button>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;" data-translate="admin_btn">Guardar Nuevo Nido</button>
             </form>
+        </section>
+
+        <section id="contact" style="background-color: transparent; padding: 4rem 1rem;">
+            <h2 data-translate="contact_title">📍 Encuentra tu Norte</h2>
+            
+            <div class="contact-container">
+                <div class="contact-info">
+                    <h3 data-translate="contact_office" style="font-family: var(--font-heading); color: var(--color-primary); margin-bottom: 1rem;">Oficina Central</h3>
+                    <p style="margin-bottom: 20px; color: #666;" data-translate="contact_desc">Ven a visitarnos y tómate un café mientras planeas tu próxima escapada.</p>
+                    
+                    <div class="contact-item"><span>📍</span> <strong>Gallur, Zaragoza (España)</strong></div>
+                    <div class="contact-item"><span>📧</span> <strong>hola@nomadnest.com</strong></div>
+                    <div class="contact-item"><span>📱</span> <strong>+34 600 123 456</strong></div>
+                </div>
+
+                <div class="map-wrapper">
+                    <iframe 
+                        width="100%" 
+                        height="100%" 
+                        frameborder="0" 
+                        scrolling="no" 
+                        marginheight="0" 
+                        marginwidth="0" 
+                        src="https://maps.google.com/maps?q=Gallur,%20Zaragoza,%20Spain&t=&z=14&ie=UTF8&iwloc=&output=embed">
+                    </iframe>
+                </div>
+            </div>
         </section>
     </main>
 
-    <footer id="contact">
-        <p>&copy; 2024 NomadNest - Diseñado con Inteligencia Natural y Artificial.</p>
+    <footer style="background: var(--color-accent); color: white; text-align: center; padding: 1rem;">
+        <p>© 2025 NomadNest - Diseñado con ❤️ en Aragón.</p>
     </footer>
 
-    <script src="js/app.js?v=final"></script>
+    <script src="js/app.js?v=san_valero_edition"></script>
 </body>
 </html>

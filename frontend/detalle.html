@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles | NomadNest</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Sora:wght@600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body style="background-color: var(--color-bg);">
+
+    <header class="main-header">
+        <div class="logo">NomadNest 🌲</div>
+        <nav>
+            <ul>
+                <li><a href="index.html">⬅ Volver al Inicio</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main style="max-width: 900px; margin: 4rem auto; padding: 0 2rem;">
+        <div id="detail-container" style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <img id="detail-img" src="" alt="Cabaña" style="width: 100%; height: 400px; object-fit: cover;">
+            
+            <div style="padding: 3rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h1 id="detail-title" style="font-family: var(--font-heading); color: var(--color-primary); font-size: 2.5rem;">Cargando...</h1>
+                    <span id="detail-price" style="font-size: 1.5rem; font-weight: bold; color: var(--color-accent);">0€</span>
+                </div>
+
+                <div style="background: #f4f9f4; padding: 1rem; border-radius: 10px; display: inline-block; margin-bottom: 2rem; color: var(--color-secondary); font-weight: bold;">
+                    <span id="detail-wifi">⚡ Cargando WiFi...</span>
+                </div>
+
+                <h3 style="margin-bottom: 1rem;">Descripción del alojamiento</h3>
+                <p id="detail-desc" style="font-size: 1.2rem; color: #555; line-height: 1.8;">
+                    Cargando información detallada...
+                </p>
+
+                <div style="margin-top: 3rem; text-align: center;">
+                    <button class="btn-primary" onclick="alert('Funcionalidad de Reserva próximamente 📅')">Reservar Ahora</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer style="background: var(--color-accent); color: white; text-align: center; padding: 1rem; margin-top: 4rem;">
+        <p>© 2025 NomadNest</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
