@@ -37,36 +37,24 @@
 
         <section id="products" class="products-section">
             <h2>Nuestros Nidos Destacados</h2>
+            
             <div class="products-grid" id="products-container">
-                <article class="card">
-                    <div class="card-image" style="background-color: #ddd; height: 200px;"></div> <div class="card-content">
-                        <h3>Cabaña Pines</h3>
-                        <p>Perfecta para deep work. Fibra 600Mb.</p>
-                        <span class="price">85€ / noche</span>
-                        <button class="btn-secondary">Ver detalles</button>
-                    </div>
-                </article>
+                </div>
+        </section>
 
-                <article class="card">
-                    <div class="card-image" style="background-color: #ddd; height: 200px;"></div>
-                    <div class="card-content">
-                        <h3>Estudio Lago</h3>
-                        <p>Vistas al agua e inspiración total.</p>
-                        <span class="price">120€ / noche</span>
-                        <button class="btn-secondary">Ver detalles</button>
-                    </div>
-                </article>
-
-                <article class="card">
-                    <div class="card-image" style="background-color: #ddd; height: 200px;"></div>
-                    <div class="card-content">
-                        <h3>Refugio Mountain</h3>
-                        <p>Aislado, silencioso y conectado.</p>
-                        <span class="price">95€ / noche</span>
-                        <button class="btn-secondary">Ver detalles</button>
-                    </div>
-                </article>
-            </div>
+        <section id="admin" class="admin-section" style="padding: 2rem; max-width: 800px; margin: 3rem auto; background: white; border-radius: 16px; border: 2px dashed var(--color-primary);">
+            <h2 style="text-align: center; margin-bottom: 2rem;">🛠️ Gestión de Nidos (CRUD)</h2>
+            
+            <form id="form-crear" style="display: grid; gap: 1rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <input type="text" id="nombre" placeholder="Nombre" required style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px;">
+                    <input type="number" id="precio" placeholder="Precio (€)" required style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px;">
+                </div>
+                <input type="text" id="descripcion" placeholder="Descripción corta" required style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px;">
+                <input type="number" id="wifi" placeholder="Velocidad WiFi (Mb)" required style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px;">
+                
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Guardar Nuevo Nido</button>
+            </form>
         </section>
     </main>
 
@@ -74,5 +62,6 @@
         <p>&copy; 2024 NomadNest - Diseñado con Inteligencia Natural y Artificial.</p>
     </footer>
 
+    <script src="js/app.js?v=final"></script>
 </body>
 </html>
