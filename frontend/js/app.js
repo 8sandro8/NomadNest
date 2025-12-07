@@ -1,3 +1,4 @@
+// --- 1. DICCIONARIO DE IDIOMAS ---
 const translations = {
     es: {
         nav_home: "Inicio",
@@ -9,14 +10,16 @@ const translations = {
         hero_cta: "Explorar Nidos",
         about_title: "🌲 Nuestra Raíz",
         about_p1: "NomadNest nació en Gallur de una necesidad sencilla: queríamos programar escuchando pájaros, no el tráfico.",
-        // MENCIÓN A SAN VALERO AQUÍ
         about_p2: "Nuestro objetivo es revitalizar la España Vaciada atrayendo talento digital. Convertimos antiguos refugios en oficinas de alto rendimiento, demostrando que con la formación de San Valero se puede trabajar para cualquier parte del mundo.",
         section_featured: "Nuestros Nidos Destacados",
         admin_title: "🛠️ Gestión de Nidos (CRUD)",
         admin_btn: "Guardar Nuevo Nido",
         contact_title: "📍 Encuentra tu Norte",
         contact_office: "Oficina Central",
-        contact_desc: "Ven a visitarnos y tómate un café mientras planeas tu próxima escapada."
+        contact_desc: "Ven a visitarnos y tómate un café mientras planeas tu próxima escapada.",
+        comments_title: "💬 Opiniones de la Comunidad",
+        leave_comment: "Deja tu opinión",
+        send_comment: "Publicar Comentario"
     },
     en: {
         nav_home: "Home",
@@ -28,35 +31,45 @@ const translations = {
         hero_cta: "Explore Nests",
         about_title: "🌲 Our Roots",
         about_p1: "NomadNest was born in Gallur from a simple need: we wanted to code listening to birds, not traffic.",
-        // MENCIÓN A SAN VALERO EN INGLÉS
         about_p2: "Our goal is to revitalize rural Spain by attracting digital talent. We turn old shelters into high-performance offices, proving that with training from San Valero you can work for anywhere in the world.",
         section_featured: "Featured Nests",
         admin_title: "🛠️ Nest Management (CRUD)",
         admin_btn: "Save New Nest",
         contact_title: "📍 Find your North",
         contact_office: "Headquarters",
-        contact_desc: "Come visit us and have a coffee while planning your next getaway."
+        contact_desc: "Come visit us and have a coffee while planning your next getaway.",
+        comments_title: "💬 Community Reviews",
+        leave_comment: "Leave a review",
+        send_comment: "Post Comment"
     }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Detectar si estamos en la página principal o en detalles
+    // Detectar página
     if (document.getElementById('products-container')) {
-        cargarAlojamientos(); // Estamos en index.html
+        cargarAlojamientos(); // Home
     } else if (document.getElementById('detail-container')) {
-        cargarDetalle(); // Estamos en detalle.html
+        cargarDetalle(); // Detalle
     }
 
-    // Evento CREAR con FOTO
-    const form = document.getElementById('form-crear');
-    if (form) {
-        form.addEventListener('submit', async (e) => {
+    // Eventos Formularios
+    const formCrear = document.getElementById('form-crear');
+    if (formCrear) {
+        formCrear.addEventListener('submit', async (e) => {
             e.preventDefault();
             await crearAlojamiento();
         });
     }
 
-    // Evento IDIOMA
+    const formComentario = document.getElementById('form-comentario');
+    if (formComentario) {
+        formComentario.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await publicarComentario();
+        });
+    }
+
+    // Idioma
     const langSelector = document.getElementById('language-selector');
     if (langSelector) {
         langSelector.addEventListener('change', (e) => {
@@ -73,7 +86,7 @@ function changeLanguage(lang) {
     });
 }
 
-// --- INDEX: CARGAR TODOS ---
+// --- HOME ---
 async function cargarAlojamientos() {
     try {
         const respuesta = await fetch(`http://localhost:3000/api/alojamientos?t=${Date.now()}`);
@@ -83,7 +96,6 @@ async function cargarAlojamientos() {
         contenedor.innerHTML = ''; 
 
         alojamientos.forEach(alo => {
-            // Manejo de URL de imagen
             const imagenUrl = alo.imagen && (alo.imagen.startsWith('http') || alo.imagen.startsWith('img/'))
                 ? alo.imagen 
                 : `img/${alo.imagen || 'default.jpg'}`;
@@ -106,25 +118,22 @@ async function cargarAlojamientos() {
             `;
             contenedor.appendChild(tarjeta);
         });
-    } catch (error) {
-        console.error("Error cargando datos:", error);
-    }
+    } catch (error) { console.error(error); }
 }
 
-// --- DETALLES: CARGAR UNO SOLO ---
+// --- DETALLE ---
 async function cargarDetalle() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
-
     if (!id) return;
 
     try {
-        const respuesta = await fetch(`http://localhost:3000/api/alojamientos/${id}`);
-        const alo = await respuesta.json();
+        // 1. Cargar Info Alojamiento
+        const respAlo = await fetch(`http://localhost:3000/api/alojamientos/${id}`);
+        const alo = await respAlo.json();
 
         const imagenUrl = alo.imagen && (alo.imagen.startsWith('http') || alo.imagen.startsWith('img/'))
-            ? alo.imagen 
-            : `img/${alo.imagen || 'default.jpg'}`;
+            ? alo.imagen : `img/${alo.imagen || 'default.jpg'}`;
 
         document.getElementById('detail-img').src = imagenUrl;
         document.getElementById('detail-title').innerText = alo.nombre;
@@ -132,12 +141,66 @@ async function cargarDetalle() {
         document.getElementById('detail-price').innerText = `${alo.precio}€ / noche`;
         document.getElementById('detail-wifi').innerText = `⚡ ${alo.wifi_speed} Mb Fibra Óptica`;
 
-    } catch (error) {
-        console.error("Error cargando detalle:", error);
-    }
+        // 2. Cargar Comentarios
+        cargarComentarios(id);
+
+    } catch (error) { console.error(error); }
 }
 
-// --- CREAR CON FOTO (FormData) ---
+// --- COMENTARIOS ---
+async function cargarComentarios(idAlojamiento) {
+    try {
+        const respuesta = await fetch(`http://localhost:3000/api/comentarios/${idAlojamiento}`);
+        const comentarios = await respuesta.json();
+        
+        const lista = document.getElementById('comments-list');
+        lista.innerHTML = '';
+
+        if (comentarios.length === 0) {
+            lista.innerHTML = '<p style="color:#777; font-style:italic;">Sé el primero en opinar.</p>';
+            return;
+        }
+
+        comentarios.forEach(c => {
+            const item = document.createElement('div');
+            item.style.borderBottom = '1px solid #eee';
+            item.style.padding = '10px 0';
+            item.innerHTML = `
+                <div style="display:flex; justify-content:space-between;">
+                    <strong style="color:var(--color-primary);">${c.usuario}</strong>
+                    <span style="font-size:0.8rem; color:#999;">${c.fecha}</span>
+                </div>
+                <p style="margin-top:5px; color:#555;">${c.texto}</p>
+            `;
+            lista.appendChild(item);
+        });
+    } catch (error) { console.error(error); }
+}
+
+async function publicarComentario() {
+    const params = new URLSearchParams(window.location.search);
+    const idAlojamiento = params.get('id');
+    
+    const usuario = document.getElementById('comentario-usuario').value;
+    const texto = document.getElementById('comentario-texto').value;
+
+    try {
+        const respuesta = await fetch('http://localhost:3000/api/comentarios', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ alojamiento_id: idAlojamiento, usuario, texto })
+        });
+
+        if (respuesta.ok) {
+            document.getElementById('form-comentario').reset();
+            cargarComentarios(idAlojamiento); // Recargar la lista
+        } else {
+            alert("Error al enviar comentario");
+        }
+    } catch (error) { console.error(error); }
+}
+
+// --- CREAR ALOJAMIENTO ---
 async function crearAlojamiento() {
     const nombre = document.getElementById('nombre').value;
     const descripcion = document.getElementById('descripcion').value;
@@ -162,15 +225,13 @@ async function crearAlojamiento() {
         });
 
         if (respuesta.ok) {
-            alert("✅ ¡Alojamiento creado con foto!");
+            alert("✅ ¡Alojamiento creado!");
             document.getElementById('form-crear').reset();
             cargarAlojamientos(); 
         } else {
             alert("Error al guardar.");
         }
-    } catch (error) {
-        console.error("Error creando:", error);
-    }
+    } catch (error) { console.error(error); }
 }
 
 window.borrarAlojamiento = async function(id) {
