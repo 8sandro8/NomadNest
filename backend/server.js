@@ -4,7 +4,6 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const { body, validationResult } = require('express-validator');
-
 const app = express();
 const PORT = 3000;
 
@@ -17,7 +16,6 @@ app.use('/img/uploads', express.static(path.join(__dirname, '../frontend/img/upl
 // --- CONFIGURACIÓN MULTER (SUBIDA DE FOTOS) ---
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        // Guardamos las fotos directamente en la carpeta del frontend
         cb(null, path.join(__dirname, '../frontend/img/uploads'));
     },
     filename: function (req, file, cb) {
