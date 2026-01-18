@@ -10,7 +10,6 @@
     --font-body: 'Nunito', sans-serif;
 }
 
-/* --- RESET BÁSICO --- */
 * {
     margin: 0;
     padding: 0;
@@ -84,7 +83,6 @@ nav a:hover {
     /* AQUÍ CARGAMOS LA FOTO LOCAL */
     background: linear-gradient(rgba(20, 40, 30, 0.5), rgba(20, 40, 30, 0.5)), url('../img/hero-bg.jpg');
     
-    /* background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1449156493391-d2cfa28e468b?q=80&w=1920'); */
 
     background-size: cover;
     background-position: center;
