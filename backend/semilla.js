@@ -11,7 +11,7 @@ console.log("🔄 Iniciando reseteo de la base de datos en: " + dbPath);
 const alojamientos = [
     {
         nombre: "Cabaña Pines",
-        descripcion: "Perfecta para deep work. Fibra 600Mb.",
+        descripcion: "Perfecta para deep work. Para los amantes de la montaña y el frío. Fibra 600Mb.",
         precio: 85,
         imagen: "img/uploads/cabana1.jpg", 
         wifi_speed: 600
@@ -29,6 +29,13 @@ const alojamientos = [
         precio: 95,
         imagen: "img/uploads/refugio1.jpg",
         wifi_speed: 300
+    },
+    {
+        nombre: "Aire Puro",
+        descripcion: "Si buscas la inspiración, escuchando la naturaleza.",
+        precio: 150,
+        imagen: "img/uploads/cabañas3.jpg",
+        wifi_speed: 600
     }
 ];
 
