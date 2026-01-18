@@ -1,6 +1,5 @@
 # Dependencias de Node (Backend)
 node_modules/
-package-lock.json
 
 # Base de datos 
 *.sqlite
