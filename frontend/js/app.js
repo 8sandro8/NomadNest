@@ -45,14 +45,12 @@ const translations = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Detectar página
     if (document.getElementById('products-container')) {
         cargarAlojamientos(); // Home
     } else if (document.getElementById('detail-container')) {
         cargarDetalle(); // Detalle
     }
 
-    // Eventos Formularios
     const formCrear = document.getElementById('form-crear');
     if (formCrear) {
         formCrear.addEventListener('submit', async (e) => {
@@ -69,7 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Idioma
     const langSelector = document.getElementById('language-selector');
     if (langSelector) {
         langSelector.addEventListener('change', (e) => {

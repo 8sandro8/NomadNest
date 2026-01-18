@@ -1,10 +1,9 @@
-/* --- VARIABLES GLOBALES --- */
 :root {
     --color-primary: #255D4A;    /* Verde Bosque Oscuro (Textos y botones) */
     --color-secondary: #E08E43;  /* Naranja Madera (Hover y detalles) */
     --color-accent: #1F2933;     /* Gris Oscuro Tech (Texto general) */
     
-    /* NUEVO FONDO: Verde Niebla Suave (Naturaleza) */
+    /* NUEVO FONDO */
     --color-bg: #E8F5E9;         
     
     --font-heading: 'Sora', sans-serif;
@@ -20,7 +19,7 @@
 
 body {
     font-family: var(--font-body);
-    background-color: var(--color-bg); /* Aquí se aplica el nuevo color verde suave */
+    background-color: var(--color-bg);
     color: var(--color-accent);
     line-height: 1.6;
 }
@@ -31,12 +30,12 @@ html {
 
 /* --- HEADER & NAV --- */
 .main-header {
-    background-color: rgba(255, 255, 255, 0.95); /* Blanco semi-transparente */
+    background-color: rgba(255, 255, 255, 0.95); 
     padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 20px rgba(37, 93, 74, 0.1); /* Sombra verdosa sutil */
+    box-shadow: 0 4px 20px rgba(37, 93, 74, 0.1); 
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -72,7 +71,7 @@ nav a:hover {
 #language-selector {
     padding: 5px 10px;
     border-radius: 20px;
-    border: 1px solid #C8E6C9; /* Borde verde suave */
+    border: 1px solid #C8E6C9; 
     background-color: white;
     font-family: var(--font-body);
     font-weight: bold;
@@ -82,16 +81,15 @@ nav a:hover {
 
 /* --- HERO SECTION (PORTADA) --- */
 .hero-section {
-    /* AQUÍ CARGAMOS TU FOTO LOCAL */
+    /* AQUÍ CARGAMOS LA FOTO LOCAL */
     background: linear-gradient(rgba(20, 40, 30, 0.5), rgba(20, 40, 30, 0.5)), url('../img/hero-bg.jpg');
     
-    /* Si por lo que sea no has guardado la foto aún, descomenta la línea de abajo para usar una de internet temporalmente: */
     /* background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1449156493391-d2cfa28e468b?q=80&w=1920'); */
 
     background-size: cover;
     background-position: center;
-    background-attachment: fixed; /* Efecto Parallax */
-    height: 85vh; /* Bastante alto para que impacte */
+    background-attachment: fixed; 
+    height: 85vh; 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -170,20 +168,19 @@ h2 {
     text-align: center;
 }
 
-/* --- GRID DE PRODUCTOS (Perfectamente cuadrado) --- */
+/* --- GRID DE PRODUCTOS  */
 .products-grid {
     display: grid;
-    /* Columnas automáticas pero con un ancho ideal */
+    /* Columnas automáticas */
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 2.5rem;
 }
 
-/* --- TARJETAS (CARDS) --- */
+/* --- TARJETAS --- */
 .card {
     background: white;
     border-radius: 20px;
     overflow: hidden;
-    /* Sombra más suave y natural */
     box-shadow: 0 10px 30px rgba(37, 93, 74, 0.08);
     transition: all 0.3s ease;
     display: flex;
@@ -223,17 +220,17 @@ h2 {
 }
 
 /* --- SECCIÓN ADMIN --- */
-.admin-section {
-    background: white !important; /* Forzar fondo blanco en el panel */
-    box-shadow: 0 4px 25px rgba(0,0,0,0.05) !important;
-    border: 2px dashed #C8E6C9 !important;
+main .admin-section {
+    background-color: white; 
+    box-shadow: 0 4px 25px rgba(0,0,0,0.05);
+    border: 2px dashed #C8E6C9;
 }
 
 /* --- SECCIÓN CONTACTO Y MAPA --- */
 .contact-container {
     display: grid;
-    grid-template-columns: 1fr 1.2fr; /* Mapa un poco más grande */
-    gap: 0; /* Sin hueco, estilo panel unido */
+    grid-template-columns: 1fr 1.2fr;
+    gap: 0; 
     max-width: 1100px;
     margin: 0 auto;
     background: white;
@@ -244,7 +241,7 @@ h2 {
 
 .contact-info {
     padding: 3rem;
-    background: #F1F8E9; /* Fondo verde muy clarito para el texto */
+    background: #F1F8E9; 
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -272,13 +269,11 @@ h2 {
     color: var(--color-primary);
 }
 
-/* El mapa llena el contenedor */
 .map-wrapper {
     height: 100%;
     min-height: 400px;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .hero-content h1 { font-size: 2.8rem; }
     .contact-container { grid-template-columns: 1fr; }

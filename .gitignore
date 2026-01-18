@@ -2,8 +2,7 @@
 node_modules/
 package-lock.json
 
-# Base de datos (no se suele subir, pero para esta práctica escolar quizás sí, 
-# de momento la ignoramos para evitar conflictos si trabajaras en equipo)
+# Base de datos 
 *.sqlite
 *.db
 
@@ -11,5 +10,4 @@ package-lock.json
 .DS_Store
 Thumbs.db
 
-# Logs
 *.log
