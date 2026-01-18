@@ -277,3 +277,38 @@ main .admin-section {
     .contact-container { grid-template-columns: 1fr; }
     .map-wrapper { height: 300px; }
 }
+
+/* --- FOOTER & REDES SOCIALES --- */
+.main-footer {
+    background-color: var(--color-primary); 
+    color: white;
+    padding: 2rem 0;
+    margin-top: 4rem;
+    text-align: center;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.social-links {
+    display: flex;
+    gap: 20px;
+}
+
+.social-links a {
+    color: white;
+    font-size: 1.8rem;
+    transition: all 0.3s ease;
+}
+
+/* Al pasar el ratón se ponen naranjas y suben */
+.social-links a:hover {
+    color: var(--color-secondary);
+    transform: translateY(-5px);
+}
