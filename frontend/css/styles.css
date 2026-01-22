@@ -2,10 +2,9 @@
     --color-primary: #255D4A;    /* Verde Bosque Oscuro (Textos y botones) */
     --color-secondary: #E08E43;  /* Naranja Madera (Hover y detalles) */
     --color-accent: #1F2933;     /* Gris Oscuro Tech (Texto general) */
-    
+
     /* NUEVO FONDO */
     --color-bg: #E8F5E9;         
-    
     --font-heading: 'Sora', sans-serif;
     --font-body: 'Nunito', sans-serif;
 }

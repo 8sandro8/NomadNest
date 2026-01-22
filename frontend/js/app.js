@@ -115,7 +115,10 @@ async function cargarAlojamientos() {
             `;
             contenedor.appendChild(tarjeta);
         });
-    } catch (error) { console.error(error); }
+    } catch (error) { 
+        console.error(error); 
+        alert("❌ Error de conexión: No se pudo cargar el alojamiento.");
+        }
 }
 
 // --- DETALLE ---
