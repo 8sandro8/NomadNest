@@ -200,7 +200,6 @@ async function publicarComentario() {
     } catch (error) { console.error(error); }
 }
 
-// --- CREAR ALOJAMIENTO ---
 async function crearAlojamiento() {
     const nombre = document.getElementById('nombre').value;
     const descripcion = document.getElementById('descripcion').value;
