@@ -28,13 +28,7 @@ const alojamientos = [
         imagen: "img/uploads/refugio1.jpg",
         wifi_speed: 300
     },
-    {
-        nombre: "Aire Puro",
-        descripcion: "Si buscas la inspiración, escuchando la naturaleza.",
-        precio: 150,
-        imagen: "img/uploads/cabañas3.jpg",
-        wifi_speed: 600
-    }
+
 ];
 
 db.serialize(() => {
