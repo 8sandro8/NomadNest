@@ -56,32 +56,32 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('detail-container')) {
         cargarDetalle(); // Detalle
     }
-}
 
+    // Event Listeners
     const formCrear = document.getElementById('form-crear');
-if (formCrear) {
-    formCrear.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (validarFormulario()) {
-            await crearAlojamiento();
-        }
-    });
-}
+    if (formCrear) {
+        formCrear.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (validarFormulario()) {
+                await crearAlojamiento();
+            }
+        });
+    }
 
-const formComentario = document.getElementById('form-comentario');
-if (formComentario) {
-    formComentario.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await publicarComentario();
-    });
-}
+    const formComentario = document.getElementById('form-comentario');
+    if (formComentario) {
+        formComentario.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await publicarComentario();
+        });
+    }
 
-const langSelector = document.getElementById('language-selector');
-if (langSelector) {
-    langSelector.addEventListener('change', (e) => {
-        changeLanguage(e.target.value);
-    });
-}
+    const langSelector = document.getElementById('language-selector');
+    if (langSelector) {
+        langSelector.addEventListener('change', (e) => {
+            changeLanguage(e.target.value);
+        });
+    }
 });
 
 function changeLanguage(lang) {
@@ -117,6 +117,7 @@ function validarFormulario() {
 
     return true;
 }
+
 // --- API: CARGAR CATEGORIAS ---
 async function cargarCategorias() {
     try {
@@ -136,7 +137,6 @@ async function cargarCategorias() {
 }
 
 // --- HOME ---
->>>>>>> a48558a (arreglos de entregas AA1)
 async function cargarAlojamientos() {
     try {
         const respuesta = await fetch(`http://localhost:3000/api/alojamientos?t=${Date.now()}`);
