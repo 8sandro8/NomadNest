@@ -1,4 +1,3 @@
-// --- 1. DICCIONARIO DE IDIOMAS ---
 const translations = {
     es: {
         nav_home: "Inicio",
@@ -46,9 +45,9 @@ const translations = {
 
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('products-container')) {
-        cargarAlojamientos(); // Home
+        cargarAlojamientos();
     } else if (document.getElementById('detail-container')) {
-        cargarDetalle(); // Detalle
+        cargarDetalle();
     }
 
     const formCrear = document.getElementById('form-crear');
@@ -83,7 +82,6 @@ function changeLanguage(lang) {
     });
 }
 
-// --- HOME ---
 async function cargarAlojamientos() {
     try {
         const respuesta = await fetch(`http://localhost:3000/api/alojamientos?t=${Date.now()}`);
@@ -121,14 +119,12 @@ async function cargarAlojamientos() {
         }
 }
 
-// --- DETALLE ---
 async function cargarDetalle() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
     if (!id) return;
 
     try {
-        // 1. Cargar Info Alojamiento
         const respAlo = await fetch(`http://localhost:3000/api/alojamientos/${id}`);
         const alo = await respAlo.json();
 
@@ -141,13 +137,11 @@ async function cargarDetalle() {
         document.getElementById('detail-price').innerText = `${alo.precio}€ / noche`;
         document.getElementById('detail-wifi').innerText = `⚡ ${alo.wifi_speed} Mb Fibra Óptica`;
 
-        // 2. Cargar Comentarios
         cargarComentarios(id);
 
     } catch (error) { console.error(error); }
 }
 
-// --- COMENTARIOS ---
 async function cargarComentarios(idAlojamiento) {
     try {
         const respuesta = await fetch(`http://localhost:3000/api/comentarios/${idAlojamiento}`);
@@ -193,7 +187,7 @@ async function publicarComentario() {
 
         if (respuesta.ok) {
             document.getElementById('form-comentario').reset();
-            cargarComentarios(idAlojamiento); // Recargar la lista
+            cargarComentarios(idAlojamiento);
         } else {
             alert("Error al enviar comentario");
         }

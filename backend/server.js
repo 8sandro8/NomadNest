@@ -3,17 +3,15 @@ const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
-const { body, validationResult } = require('express-validator');
+
 const app = express();
 const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
 
-// --- CONFIGURACIÓN DE RUTAS ESTÁTICAS (FOTOS) ---
 app.use('/img/uploads', express.static(path.join(__dirname, '../frontend/img/uploads')));
 
-// --- CONFIGURACIÓN MULTER (SUBIDA DE FOTOS) ---
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, path.join(__dirname, '../frontend/img/uploads'));
@@ -25,14 +23,12 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// --- BASE DE DATOS ---
 const dbPath = path.join(__dirname, 'nomadnest.db');
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) console.error(err.message);
     else console.log('✅ Conectado a SQLite en: ' + dbPath);
 });
 
-// 1. Crear tabla ALOJAMIENTOS
 db.run(`CREATE TABLE IF NOT EXISTS alojamientos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nombre TEXT NOT NULL,
@@ -42,7 +38,6 @@ db.run(`CREATE TABLE IF NOT EXISTS alojamientos (
     wifi_speed INTEGER
 )`);
 
-// 2. Crear tabla COMENTARIOS 
 db.run(`CREATE TABLE IF NOT EXISTS comentarios (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     alojamiento_id INTEGER,
@@ -51,8 +46,6 @@ db.run(`CREATE TABLE IF NOT EXISTS comentarios (
     fecha TEXT,
     FOREIGN KEY(alojamiento_id) REFERENCES alojamientos(id)
 )`);
-
-// --- RUTAS DE LA API ---
 
 app.get('/api/alojamientos', (req, res) => {
     db.all("SELECT * FROM alojamientos", [], (err, rows) => {
@@ -90,7 +83,6 @@ app.delete('/api/alojamientos/:id', (req, res) => {
     });
 });
 
-// Rutas de Comentarios
 app.get('/api/comentarios/:id', (req, res) => {
     const sql = "SELECT * FROM comentarios WHERE alojamiento_id = ? ORDER BY id DESC";
     db.all(sql, [req.params.id], (err, rows) => {
@@ -110,7 +102,6 @@ app.post('/api/comentarios', (req, res) => {
     });
 });
 
-// --- ARRANCAR SERVIDOR ---
 app.listen(PORT, () => {
     console.log(`🚀 API REST corriendo en http://localhost:${PORT}`);
 });
