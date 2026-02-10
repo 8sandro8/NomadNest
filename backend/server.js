@@ -23,8 +23,6 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-<<<<<<< HEAD
-=======
 // --- MIDDLEWARE DE AUTENTICACIÓN (Simulado) ---
 const checkAuth = (req, res, next) => {
     // En un caso real, verificaríamos un token JWT o sesión.
@@ -38,33 +36,12 @@ const checkAuth = (req, res, next) => {
 };
 
 // --- BASE DE DATOS ---
->>>>>>> a48558a (arreglos de entregas AA1)
 const dbPath = path.join(__dirname, 'nomadnest.db');
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) console.error(err.message);
     else console.log('✅ Conectado a SQLite en: ' + dbPath);
 });
 
-<<<<<<< HEAD
-db.run(`CREATE TABLE IF NOT EXISTS alojamientos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre TEXT NOT NULL,
-    descripcion TEXT,
-    precio REAL,
-    imagen TEXT,
-    wifi_speed INTEGER
-)`);
-
-db.run(`CREATE TABLE IF NOT EXISTS comentarios (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    alojamiento_id INTEGER,
-    usuario TEXT,
-    texto TEXT,
-    fecha TEXT,
-    FOREIGN KEY(alojamiento_id) REFERENCES alojamientos(id)
-)`);
-
-=======
 // Habilitar claves foráneas
 db.run("PRAGMA foreign_keys = ON");
 
@@ -79,7 +56,6 @@ app.get('/api/categorias', (req, res) => {
 });
 
 // GET Alojamientos (con Join opcional para ver nombre de categoría)
->>>>>>> a48558a (arreglos de entregas AA1)
 app.get('/api/alojamientos', (req, res) => {
     const sql = `
         SELECT a.*, c.nombre as categoria_nombre 
@@ -148,11 +124,8 @@ app.delete('/api/alojamientos/:id', checkAuth, (req, res) => {
     });
 });
 
-<<<<<<< HEAD
-=======
 // RUTAS DE COMENTARIOS
 
->>>>>>> a48558a (arreglos de entregas AA1)
 app.get('/api/comentarios/:id', (req, res) => {
     const sql = "SELECT * FROM comentarios WHERE alojamiento_id = ? ORDER BY id DESC";
     db.all(sql, [req.params.id], (err, rows) => {
