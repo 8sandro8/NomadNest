@@ -473,3 +473,50 @@ html {
         height: 300px;
     }
 }
+
+/* --- DYNAMIC START --- */
+.category-tag {
+    color: var(--color-primary);
+    font-weight: bold;
+    display: block;
+    margin-top: 0.5rem;
+}
+
+.btn-details {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+}
+
+.no-comments {
+    color: #777;
+    font-style: italic;
+    text-align: center;
+    padding: 1rem;
+}
+
+.comment-item {
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.comment-user {
+    color: var(--color-primary);
+    font-weight: bold;
+}
+
+.comment-date {
+    font-size: 0.8rem;
+    color: #999;
+}
+
+.comment-text {
+    margin-top: 5px;
+    color: #555;
+}

@@ -162,13 +162,13 @@ async function cargarAlojamientos() {
                     <div>
                         <h3>${alo.nombre}</h3>
                         <p>${alo.descripcion}</p>
-                        ${alo.categoria_nombre ? `<small style="color:var(--color-primary); font-weight:bold;">${alo.categoria_nombre}</small>` : ''}
+                        ${alo.categoria_nombre ? `<small class="category-tag">${alo.categoria_nombre}</small>` : ''}
                     </div>
                     <div class="card-footer">
                         <span class="price">${alo.precio}€ / noche</span>
                         <span class="wifi-badge">⚡ ${alo.wifi_speed} Mb</span>
                     </div>
-                    <a href="detalle.html?id=${alo.id}" class="btn-secondary" style="display:block; text-align:center; text-decoration:none;">Ver detalles</a>
+                    <a href="detalle.html?id=${alo.id}" class="btn-secondary btn-details">Ver detalles</a>
                 </div>
             `;
             contenedor.appendChild(tarjeta);
@@ -211,20 +211,19 @@ async function cargarComentarios(idAlojamiento) {
         lista.innerHTML = '';
 
         if (comentarios.length === 0) {
-            lista.innerHTML = '<p style="color:#777; font-style:italic;">Sé el primero en opinar.</p>';
+            lista.innerHTML = '<p class="no-comments">Sé el primero en opinar.</p>';
             return;
         }
 
         comentarios.forEach(c => {
             const item = document.createElement('div');
-            item.style.borderBottom = '1px solid #eee';
-            item.style.padding = '10px 0';
+            item.className = 'comment-item';
             item.innerHTML = `
-                <div style="display:flex; justify-content:space-between;">
-                    <strong style="color:var(--color-primary);">${c.usuario}</strong>
-                    <span style="font-size:0.8rem; color:#999;">${c.fecha}</span>
+                <div class="comment-header">
+                    <strong class="comment-user">${c.usuario}</strong>
+                    <span class="comment-date">${c.fecha}</span>
                 </div>
-                <p style="margin-top:5px; color:#555;">${c.texto}</p>
+                <p class="comment-text">${c.texto}</p>
             `;
             lista.appendChild(item);
         });
