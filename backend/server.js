@@ -3,6 +3,7 @@ const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+const { body, validationResult } = require('express-validator');
 
 const app = express();
 const PORT = 3000;
