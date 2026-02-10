@@ -13,15 +13,17 @@
 <body>
 
     <header class="main-header">
-        <div class="logo">NomadNest 🌲</div>
-        <nav>
-            <ul>
-                <li><a href="#hero" data-translate="nav_home">Inicio</a></li>
-                <li><a href="#about" data-translate="nav_about">Quiénes somos</a></li>
-                <li><a href="#products" data-translate="nav_nests">Alojamientos</a></li>
-                <li><a href="#contact" data-translate="nav_contact">Contacto</a></li>
+        <a href="#" class="logo-link">
+            <img src="img/logo-placeholder.png" alt="NomadNest Logo" class="logo-img">
+        </a>
+        <nav class="main-nav">
+            <ul class="nav-list">
+                <li><a href="#hero" class="nav-link" data-translate="nav_home">Inicio</a></li>
+                <li><a href="#about" class="nav-link" data-translate="nav_about">Quiénes somos</a></li>
+                <li><a href="#products" class="nav-link" data-translate="nav_nests">Alojamientos</a></li>
+                <li><a href="#contact" class="nav-link" data-translate="nav_contact">Contacto</a></li>
                 <li>
-                    <select id="language-selector">
+                    <select id="language-selector" class="lang-select">
                         <option value="es">🇪🇸 ES</option>
                         <option value="en">🇬🇧 EN</option>
                     </select>
@@ -39,50 +41,61 @@
             </div>
         </section>
 
-        <section id="about" style="padding: 5rem 2rem; background: white; text-align: center;">
-            <div style="max-width: 800px; margin: 0 auto;">
-                <h2 data-translate="about_title" style="color: var(--color-primary); margin-bottom: 1.5rem;">🌲 Nuestra Raíz</h2>
-                <p data-translate="about_p1" style="font-size: 1.1rem; color: #555; margin-bottom: 1rem; line-height: 1.8;">
+        <section id="about" class="about-section">
+            <div class="container-narrow">
+                <h2 data-translate="about_title" class="section-title">🌲 Nuestra Raíz</h2>
+                <p data-translate="about_p1" class="text-body mb-1">
                     NomadNest nació en Gallur de una necesidad sencilla: queríamos programar escuchando pájaros, no el tráfico. Somos un equipo de desarrolladores y amantes de la montaña que se negaron a elegir entre una buena conexión de fibra y el aire puro.
                 </p>
-                <p data-translate="about_p2" style="font-size: 1.1rem; color: #555; line-height: 1.8;">
+                <p data-translate="about_p2" class="text-body">
                     Nuestro objetivo es revitalizar la España Vaciada atrayendo talento digital. Convertimos antiguos refugios en oficinas de alto rendimiento, demostrando que con la formación de <strong>San Valero</strong> se puede trabajar para cualquier parte del mundo.
                 </p>
             </div>
         </section>
 
         <section id="products" class="products-section">
-            <h2 data-translate="section_featured">Nuestros Nidos Destacados</h2>
+            <h2 data-translate="section_featured" class="section-title text-center">Nuestros Nidos Destacados</h2>
             <div class="products-grid" id="products-container">
-                </div>
+                <!-- Se llenará con JS -->
+            </div>
         </section>
 
         <section id="admin" class="admin-section">
-            <h2 style="text-align: center; margin-bottom: 2rem;" data-translate="admin_title">🛠️ Gestión de Nidos (CRUD)</h2>
+            <h2 class="section-title text-center" data-translate="admin_title">🛠️ Gestión de Nidos (CRUD)</h2>
             
-            <form id="form-crear" style="display: grid; gap: 1rem;" enctype="multipart/form-data">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <input type="text" id="nombre" placeholder="Nombre" required style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px;">
-                    <input type="number" id="precio" placeholder="Precio (€)" required style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px;">
+            <form id="form-crear" class="admin-form" enctype="multipart/form-data">
+                <div class="form-grid">
+                    <input type="text" id="nombre" class="form-input" placeholder="Nombre" required>
+                    <input type="number" id="precio" class="form-input" placeholder="Precio (€)" required>
                 </div>
                 
-                <label style="font-weight: bold; color: var(--color-primary);">📸 Añadir Foto Principal:</label>
-                <input type="file" id="foto" accept="image/*" style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px; background: white;">
+                <div class="form-group">
+                    <label class="form-label">📸 Añadir Foto Principal:</label>
+                    <input type="file" id="foto" class="form-input-file" accept="image/*">
+                </div>
                 
-                <input type="text" id="descripcion" placeholder="Descripción corta" required style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px;">
-                <input type="number" id="wifi" placeholder="Velocidad WiFi (Mb)" required style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px;">
+                <div class="form-group">
+                    <label class="form-label">Categoría:</label>
+                    <select id="categoria" class="form-input form-select" required>
+                        <!-- Se llenará con JS -->
+                    </select>
+                </div>
+
+                <input type="text" id="descripcion" class="form-input" placeholder="Descripción corta" required>
                 
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;" data-translate="admin_btn">Guardar Nuevo Nido</button>
+                <input type="number" id="wifi" class="form-input" placeholder="Velocidad WiFi (Mb)" required>
+                
+                <button type="submit" class="btn-primary btn-block" data-translate="admin_btn">Guardar Nuevo Nido</button>
             </form>
         </section>
 
-        <section id="contact" style="background-color: transparent; padding: 4rem 1rem;">
-            <h2 data-translate="contact_title">📍 Encuentra tu Norte</h2>
+        <section id="contact" class="contact-section">
+            <h2 data-translate="contact_title" class="section-title text-center">📍 Encuentra tu Norte</h2>
             
             <div class="contact-container">
                 <div class="contact-info">
-                    <h3 data-translate="contact_office" style="font-family: var(--font-heading); color: var(--color-primary); margin-bottom: 1rem;">Oficina Central</h3>
-                    <p style="margin-bottom: 20px; color: #666;" data-translate="contact_desc">Ven a visitarnos y tómate un café mientras planeas tu próxima escapada.</p>
+                    <h3 data-translate="contact_office" class="contact-subtitle">Oficina Central</h3>
+                    <p class="contact-desc" data-translate="contact_desc">Ven a visitarnos y tómate un café mientras planeas tu próxima escapada.</p>
                     
                     <div class="contact-item"><span>📍</span> <strong>Gallur, Zaragoza (España)</strong></div>
                     <div class="contact-item"><span>📧</span> <strong>hola@nomadnest.com</strong></div>
@@ -91,12 +104,7 @@
 
                 <div class="map-wrapper">
                     <iframe 
-                        width="100%" 
-                        height="100%" 
-                        frameborder="0" 
-                        scrolling="no" 
-                        marginheight="0" 
-                        marginwidth="0" 
+                        class="map-iframe"
                         src="https://maps.google.com/maps?q=Gallur,%20Zaragoza,%20Spain&t=&z=14&ie=UTF8&iwloc=&output=embed">
                     </iframe>
                 </div>
@@ -109,19 +117,19 @@
             <p>© 2026 NomadNest - Diseñado con ❤️ en Aragón.</p>
             
             <div class="social-links">
-                <a href="https://instagram.com" target="_blank" aria-label="Instagram">
+                <a href="https://instagram.com" target="_blank" aria-label="Instagram" class="social-icon">
                     <i class="fa-brands fa-instagram"></i>
                 </a>
-                <a href="https://twitter.com" target="_blank" aria-label="Twitter">
+                <a href="https://twitter.com" target="_blank" aria-label="Twitter" class="social-icon">
                     <i class="fa-brands fa-x-twitter"></i>
                 </a>
-                <a href="https://facebook.com" target="_blank" aria-label="Facebook">
+                <a href="https://facebook.com" target="_blank" aria-label="Facebook" class="social-icon">
                     <i class="fa-brands fa-facebook"></i>
                 </a>
             </div>
         </div>
     </footer>
 
-    <script src="js/app.js?v=san_valero_edition"></script>
+    <script src="js/app.js?v=san_valero_edition_v2"></script>
 </body>
 </html>

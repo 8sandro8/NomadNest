@@ -45,16 +45,31 @@ const translations = {
 
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('products-container')) {
+<<<<<<< HEAD
         cargarAlojamientos();
     } else if (document.getElementById('detail-container')) {
         cargarDetalle();
+=======
+        cargarAlojamientos(); // Home
+    }
+
+    // Si estamos en el home (admin section), cargar categorías
+    if (document.getElementById('categoria')) {
+        cargarCategorias();
+    }
+
+    if (document.getElementById('detail-container')) {
+        cargarDetalle(); // Detalle
+>>>>>>> a48558a (arreglos de entregas AA1)
     }
 
     const formCrear = document.getElementById('form-crear');
     if (formCrear) {
         formCrear.addEventListener('submit', async (e) => {
             e.preventDefault();
-            await crearAlojamiento();
+            if (validarFormulario()) {
+                await crearAlojamiento();
+            }
         });
     }
 
@@ -82,41 +97,94 @@ function changeLanguage(lang) {
     });
 }
 
+<<<<<<< HEAD
+=======
+// --- VALIDACIÓN FRONTEND ---
+function validarFormulario() {
+    const nombre = document.getElementById('nombre').value.trim();
+    const precio = document.getElementById('precio').value;
+    const desc = document.getElementById('descripcion').value.trim();
+    const wifi = document.getElementById('wifi').value;
+    const cat = document.getElementById('categoria').value;
+
+    if (!nombre || !precio || !desc || !wifi || !cat) {
+        alert("⚠️ Por favor, rellena todos los campos obligatorios.");
+        return false;
+    }
+
+    if (precio <= 0) {
+        alert("⚠️ El precio debe ser mayor que 0.");
+        return false;
+    }
+
+    if (wifi < 10) {
+        alert("⚠️ La velocidad WiFi debe ser al menos 10 Mb.");
+        return false;
+    }
+
+    return true;
+}
+
+// --- API: CARGAR CATEGORIAS ---
+async function cargarCategorias() {
+    try {
+        const res = await fetch('http://localhost:3000/api/categorias');
+        const categorias = await res.json();
+        const select = document.getElementById('categoria');
+        select.innerHTML = '<option value="">Selecciona una categoría...</option>';
+        categorias.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = cat.nombre;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error("Error cargando categorías:", error);
+    }
+}
+
+// --- HOME ---
+>>>>>>> a48558a (arreglos de entregas AA1)
 async function cargarAlojamientos() {
     try {
         const respuesta = await fetch(`http://localhost:3000/api/alojamientos?t=${Date.now()}`);
         const alojamientos = await respuesta.json();
-        
+
         const contenedor = document.getElementById('products-container');
-        contenedor.innerHTML = ''; 
+        contenedor.innerHTML = '';
 
         alojamientos.forEach(alo => {
             const imagenUrl = alo.imagen && (alo.imagen.startsWith('http') || alo.imagen.startsWith('img/'))
-                ? alo.imagen 
+                ? alo.imagen
                 : `img/${alo.imagen || 'default.jpg'}`;
 
             const tarjeta = document.createElement('article');
             tarjeta.className = 'card';
+
+            // Renderizado seguro sin estilos en línea (usando clases definidas en CSS)
             tarjeta.innerHTML = `
-                <div class="card-image" style="background-image: url('${imagenUrl}'); background-size: cover; background-position: center; height: 200px; position: relative;">
-                    <button onclick="borrarAlojamiento(${alo.id})" style="position: absolute; top: 10px; right: 10px; background: red; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer;">X</button>
+                <div class="card-image" style="background-image: url('${imagenUrl}');">
+                    <button class="card-delete-btn" onclick="borrarAlojamiento(${alo.id})">X</button>
                 </div>
                 <div class="card-content">
-                    <h3>${alo.nombre}</h3>
-                    <p>${alo.descripcion}</p>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0;">
+                    <div>
+                        <h3>${alo.nombre}</h3>
+                        <p>${alo.descripcion}</p>
+                        ${alo.categoria_nombre ? `<small style="color:var(--color-primary); font-weight:bold;">${alo.categoria_nombre}</small>` : ''}
+                    </div>
+                    <div class="card-footer">
                         <span class="price">${alo.precio}€ / noche</span>
-                        <span style="font-size: 0.9rem; color: #F2994A; font-weight: bold;">⚡ ${alo.wifi_speed} Mb</span>
+                        <span class="wifi-badge">⚡ ${alo.wifi_speed} Mb</span>
                     </div>
                     <a href="detalle.html?id=${alo.id}" class="btn-secondary" style="display:block; text-align:center; text-decoration:none;">Ver detalles</a>
                 </div>
             `;
             contenedor.appendChild(tarjeta);
         });
-    } catch (error) { 
-        console.error(error); 
+    } catch (error) {
+        console.error(error);
         alert("❌ Error de conexión: No se pudo cargar el alojamiento.");
-        }
+    }
 }
 
 async function cargarDetalle() {
@@ -146,7 +214,7 @@ async function cargarComentarios(idAlojamiento) {
     try {
         const respuesta = await fetch(`http://localhost:3000/api/comentarios/${idAlojamiento}`);
         const comentarios = await respuesta.json();
-        
+
         const lista = document.getElementById('comments-list');
         lista.innerHTML = '';
 
@@ -174,7 +242,7 @@ async function cargarComentarios(idAlojamiento) {
 async function publicarComentario() {
     const params = new URLSearchParams(window.location.search);
     const idAlojamiento = params.get('id');
-    
+
     const usuario = document.getElementById('comentario-usuario').value;
     const texto = document.getElementById('comentario-texto').value;
 
@@ -199,6 +267,7 @@ async function crearAlojamiento() {
     const descripcion = document.getElementById('descripcion').value;
     const precio = document.getElementById('precio').value;
     const wifi_speed = document.getElementById('wifi').value;
+    const categoria = document.getElementById('categoria').value;
     const fotoInput = document.getElementById('foto');
 
     const formData = new FormData();
@@ -206,7 +275,8 @@ async function crearAlojamiento() {
     formData.append('descripcion', descripcion);
     formData.append('precio', precio);
     formData.append('wifi_speed', wifi_speed);
-    
+    formData.append('categoria_id', categoria);
+
     if (fotoInput.files[0]) {
         formData.append('foto', fotoInput.files[0]);
     }
@@ -214,22 +284,36 @@ async function crearAlojamiento() {
     try {
         const respuesta = await fetch('http://localhost:3000/api/alojamientos', {
             method: 'POST',
+            headers: {
+                // Header simulado de admin para pasar el middleware
+                'x-admin-token': 'secret123'
+            },
             body: formData
         });
 
         if (respuesta.ok) {
             alert("✅ ¡Alojamiento creado!");
             document.getElementById('form-crear').reset();
-            cargarAlojamientos(); 
+            cargarAlojamientos();
         } else {
-            alert("Error al guardar.");
+            const data = await respuesta.json();
+            if (data.errors) {
+                let msg = "Errores de validación:\n";
+                data.errors.forEach(err => msg += `- ${err.msg}\n`);
+                alert(msg);
+            } else {
+                alert("Error: " + (data.error || "Desconocido"));
+            }
         }
     } catch (error) { console.error(error); }
 }
 
-window.borrarAlojamiento = async function(id) {
+window.borrarAlojamiento = async function (id) {
     if (confirm("¿Borrar alojamiento?")) {
-        await fetch(`http://localhost:3000/api/alojamientos/${id}`, { method: 'DELETE' });
+        await fetch(`http://localhost:3000/api/alojamientos/${id}`, {
+            method: 'DELETE',
+            headers: { 'x-admin-token': 'secret123' }
+        });
         cargarAlojamientos();
     }
 }
