@@ -25,27 +25,4 @@ Sigue estos pasos para arrancar el proyecto en tu máquina local:
 
 ### 1. Clonar el repositorio
 ```bash
-git clone https://github.com/8sandro8/NomadNest_v2.git
-cd NomadNest_v2
-```
-
-### 2. Instalar dependencias del Backend
-```bash
-cd backend
-npm install
-```
-
-### 3. Inicializar Base de Datos (Reset)
-⚠️ Importante para crear las tablas necesarias:
-```bash
-node semilla.js
-```
-
-### 4. Arrancar el Servidor
-```bash
-node server.js
-```
-El servidor arrancará en `http://localhost:3000`.
-
-### 5. Abrir el Frontend
-Abre el archivo `frontend/index.html` directamente en tu navegador o usa Live Server si estás en VS Code.
+git clone [https://github.com/8sandro8/NomadNest.git](https://github.com/8sandro8/NomadNest.git)

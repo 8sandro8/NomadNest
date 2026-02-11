@@ -1,3 +1,4 @@
+// --- 1. DICCIONARIO DE IDIOMAS ---
 const translations = {
     es: {
         nav_home: "Inicio",
@@ -57,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
         cargarDetalle(); // Detalle
     }
 
-    // Event Listeners
     const formCrear = document.getElementById('form-crear');
     if (formCrear) {
         formCrear.addEventListener('submit', async (e) => {
@@ -155,14 +155,14 @@ async function cargarAlojamientos() {
 
             // Renderizado seguro sin estilos en línea (usando clases definidas en CSS)
             tarjeta.innerHTML = `
-                <div class="card-image" style="background-image: url('${imagenUrl}');">
+                <div class="card-image">
                     <button class="card-delete-btn" onclick="borrarAlojamiento(${alo.id})">X</button>
                 </div>
                 <div class="card-content">
                     <div>
-                        <h3>${alo.nombre}</h3>
-                        <p>${alo.descripcion}</p>
-                        ${alo.categoria_nombre ? `<small class="category-tag">${alo.categoria_nombre}</small>` : ''}
+                        <h3 class="card-title">${alo.nombre}</h3>
+                        <p class="card-description">${alo.descripcion}</p>
+                        ${alo.categoria_nombre ? `<small class="card-category-text">${alo.categoria_nombre}</small>` : ''}
                     </div>
                     <div class="card-footer">
                         <span class="price">${alo.precio}€ / noche</span>
@@ -171,6 +171,8 @@ async function cargarAlojamientos() {
                     <a href="detalle.html?id=${alo.id}" class="btn-secondary btn-details">Ver detalles</a>
                 </div>
             `;
+            // Aplicar imagen de fondo dinámicamente sin usar atributo style en el HTML string
+            tarjeta.querySelector('.card-image').style.backgroundImage = `url('${imagenUrl}')`;
             contenedor.appendChild(tarjeta);
         });
     } catch (error) {
@@ -179,12 +181,14 @@ async function cargarAlojamientos() {
     }
 }
 
+// --- DETALLE ---
 async function cargarDetalle() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
     if (!id) return;
 
     try {
+        // 1. Cargar Info Alojamiento
         const respAlo = await fetch(`http://localhost:3000/api/alojamientos/${id}`);
         const alo = await respAlo.json();
 
@@ -197,11 +201,13 @@ async function cargarDetalle() {
         document.getElementById('detail-price').innerText = `${alo.precio}€ / noche`;
         document.getElementById('detail-wifi').innerText = `⚡ ${alo.wifi_speed} Mb Fibra Óptica`;
 
+        // 2. Cargar Comentarios
         cargarComentarios(id);
 
     } catch (error) { console.error(error); }
 }
 
+// --- COMENTARIOS ---
 async function cargarComentarios(idAlojamiento) {
     try {
         const respuesta = await fetch(`http://localhost:3000/api/comentarios/${idAlojamiento}`);
@@ -211,7 +217,7 @@ async function cargarComentarios(idAlojamiento) {
         lista.innerHTML = '';
 
         if (comentarios.length === 0) {
-            lista.innerHTML = '<p class="no-comments">Sé el primero en opinar.</p>';
+            lista.innerHTML = '<p class="comment-empty">Sé el primero en opinar.</p>';
             return;
         }
 
@@ -220,7 +226,7 @@ async function cargarComentarios(idAlojamiento) {
             item.className = 'comment-item';
             item.innerHTML = `
                 <div class="comment-header">
-                    <strong class="comment-user">${c.usuario}</strong>
+                    <strong class="comment-author">${c.usuario}</strong>
                     <span class="comment-date">${c.fecha}</span>
                 </div>
                 <p class="comment-text">${c.texto}</p>
@@ -246,7 +252,7 @@ async function publicarComentario() {
 
         if (respuesta.ok) {
             document.getElementById('form-comentario').reset();
-            cargarComentarios(idAlojamiento);
+            cargarComentarios(idAlojamiento); // Recargar la lista
         } else {
             alert("Error al enviar comentario");
         }

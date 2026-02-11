@@ -7,21 +7,24 @@
     <title>Detalles | NomadNest</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Sora:wght@600;800&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 
-<body style="background-color: var(--color-bg);">
+<body>
 
     <header class="main-header">
-        <div class="logo">NomadNest 🌲</div>
-        <nav>
-            <ul>
-                <li><a href="index.html">⬅ Volver al Inicio</a></li>
+        <a href="index.html" class="logo-link">
+            <img src="img/logo-placeholder.png" alt="NomadNest Logo" class="logo-img">
+        </a>
+        <nav class="main-nav">
+            <ul class="nav-list">
+                <li><a href="index.html" class="nav-link">⬅ Volver al Inicio</a></li>
             </ul>
         </nav>
     </header>
 
-    <main style="max-width: 900px; margin: 4rem auto; padding: 0 2rem;">
+    <main class="detail-main">
 
         <div id="detail-container" class="detail-card">
             <img id="detail-img" src="" alt="Cabaña" class="detail-image">
@@ -32,44 +35,58 @@
                     <span id="detail-price" class="detail-price">0€</span>
                 </div>
 
-                <div class="detail-badge">
+                <div class="detail-badge-container">
                     <span id="detail-wifi">⚡ Cargando WiFi...</span>
                 </div>
 
-                <h3 class="detail-subtitle">Descripción</h3>
+                <h3 class="detail-description-title">Descripción</h3>
                 <p id="detail-desc" class="detail-description">
                     Cargando información detallada...
                 </p>
 
-                <div class="detail-actions">
+                <div class="detail-action">
                     <button class="btn-primary" onclick="alert('Funcionalidad de Reserva próximamente 📅')">Reservar
                         Ahora</button>
                 </div>
             </div>
         </div>
 
-        <div id="comments-section" class="comments-section">
-            <h2 data-translate="comments_title" class="section-title">💬 Opiniones de la Comunidad</h2>
+        <section id="comments-section" class="comments-section">
+            <h2 data-translate="comments_title" class="comments-title">💬 Opiniones de la Comunidad</h2>
 
             <div id="comments-list" class="comments-list">
-                <p class="text-muted">Cargando opiniones...</p>
+                <p class="comments-placeholder">Cargando opiniones...</p>
             </div>
 
-            <hr class="divider">
+            <hr class="comments-divider">
 
-            <h3 data-translate="leave_comment" class="comment-form-title">Deja tu opinión</h3>
+            <h3 data-translate="leave_comment" class="comments-subtitle">Deja tu opinión</h3>
             <form id="form-comentario" class="comment-form">
-                <input type="text" id="comentario-usuario" placeholder="Tu nombre" required class="form-input">
+                <input type="text" id="comentario-usuario" placeholder="Tu nombre" required class="form-control">
                 <textarea id="comentario-texto" placeholder="¿Qué te pareció el internet y la cabaña?" required
-                    class="form-input form-textarea"></textarea>
+                    class="form-control form-control-textarea"></textarea>
                 <button type="submit" class="btn-secondary" data-translate="send_comment">Publicar Comentario</button>
             </form>
-        </div>
+        </section>
 
     </main>
 
-    <footer style="background: var(--color-accent); color: white; text-align: center; padding: 1rem; margin-top: 4rem;">
-        <p>© 2025 NomadNest</p>
+    <footer class="main-footer">
+        <div class="footer-content">
+            <p>© 2026 NomadNest - Diseñado con ❤️ en Aragón.</p>
+
+            <div class="social-links">
+                <a href="https://instagram.com" target="_blank" aria-label="Instagram" class="social-icon">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="https://twitter.com" target="_blank" aria-label="Twitter" class="social-icon">
+                    <i class="fa-brands fa-x-twitter"></i>
+                </a>
+                <a href="https://facebook.com" target="_blank" aria-label="Facebook" class="social-icon">
+                    <i class="fa-brands fa-facebook"></i>
+                </a>
+            </div>
+        </div>
     </footer>
 
     <script src="js/app.js?v=comments_v1"></script>

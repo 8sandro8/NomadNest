@@ -4,15 +4,16 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const { body, validationResult } = require('express-validator');
-
 const app = express();
 const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
 
+// --- CONFIGURACIÓN DE RUTAS ESTÁTICAS (FOTOS) ---
 app.use('/img/uploads', express.static(path.join(__dirname, '../frontend/img/uploads')));
 
+// --- CONFIGURACIÓN MULTER (SUBIDA DE FOTOS) ---
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, path.join(__dirname, '../frontend/img/uploads'));
@@ -158,6 +159,7 @@ app.post('/api/comentarios',
     }
 );
 
+// --- ARRANCAR SERVIDOR ---
 app.listen(PORT, () => {
     console.log(`🚀 API REST corriendo en http://localhost:${PORT}`);
     console.log(`🔐 Admin Token: secret123`);
