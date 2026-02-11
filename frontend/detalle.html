@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles | NomadNest</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Sora:wght@600;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+    <header class="main-header">
+        <a href="index.html" class="logo-link">
+            <img src="img/logo-placeholder.png" alt="NomadNest Logo" class="logo-img">
+        </a>
+        <nav class="main-nav">
+            <ul class="nav-list">
+                <li><a href="index.html" class="nav-link">⬅ Volver al Inicio</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="detail-main">
+
+        <div id="detail-container" class="detail-card">
+            <img id="detail-img" src="" alt="Cabaña" class="detail-image">
+
+            <div class="detail-content">
+                <div class="detail-header">
+                    <h1 id="detail-title" class="detail-title">Cargando...</h1>
+                    <span id="detail-price" class="detail-price">0€</span>
+                </div>
+
+                <div class="detail-badge-container">
+                    <span id="detail-wifi">⚡ Cargando WiFi...</span>
+                </div>
+
+                <h3 class="detail-description-title">Descripción</h3>
+                <p id="detail-desc" class="detail-description">
+                    Cargando información detallada...
+                </p>
+
+                <div class="detail-action">
+                    <button class="btn-primary" onclick="alert('Funcionalidad de Reserva próximamente 📅')">Reservar
+                        Ahora</button>
+                </div>
+            </div>
+        </div>
+
+        <section id="comments-section" class="comments-section">
+            <h2 data-translate="comments_title" class="comments-title">💬 Opiniones de la Comunidad</h2>
+
+            <div id="comments-list" class="comments-list">
+                <p class="comments-placeholder">Cargando opiniones...</p>
+            </div>
+
+            <hr class="comments-divider">
+
+            <h3 data-translate="leave_comment" class="comments-subtitle">Deja tu opinión</h3>
+            <form id="form-comentario" class="comment-form">
+                <input type="text" id="comentario-usuario" placeholder="Tu nombre" required class="form-control">
+                <textarea id="comentario-texto" placeholder="¿Qué te pareció el internet y la cabaña?" required
+                    class="form-control form-control-textarea"></textarea>
+                <button type="submit" class="btn-secondary" data-translate="send_comment">Publicar Comentario</button>
+            </form>
+        </section>
+
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-content">
+            <p>© 2026 NomadNest - Diseñado con ❤️ en Aragón.</p>
+
+            <div class="social-links">
+                <a href="https://instagram.com" target="_blank" aria-label="Instagram" class="social-icon">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="https://twitter.com" target="_blank" aria-label="Twitter" class="social-icon">
+                    <i class="fa-brands fa-x-twitter"></i>
+                </a>
+                <a href="https://facebook.com" target="_blank" aria-label="Facebook" class="social-icon">
+                    <i class="fa-brands fa-facebook"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/app.js?v=comments_v1"></script>
+</body>
+
+</html>
