@@ -37,7 +37,9 @@ Si quieres correrlo en tu ordenador:
     ```
 3.  Instala lo necesario (tienes que tener Node instalado):
     ```bash
+    cd backend
     npm install
+    cd ..
     ```
 4.  Arranca el servidor:
     ```bash
