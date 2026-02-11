@@ -1,28 +1,49 @@
-# NomadNest 🌲💻
+# NomadNest 🌲
 
-**Plataforma de gestión de alojamientos para nómadas digitales.**
-Proyecto desarrollado como integración de competencias para el ciclo formativo en el **Centro San Valero**.
+**Proyecto de Gestión de Alojamientos Rurales**
 
-## 🚀 Descripción
-NomadNest es una aplicación web *full-stack* que permite gestionar un catálogo de alojamientos rurales optimizados para el teletrabajo. El proyecto combina diseño emocional, geolocalización, gestión de datos y feedback de usuarios.
+¡Hola! 👋 Este es mi proyecto final para el curso de 1º de DAM (Desarrollo de Aplicaciones Multiplataforma). La idea es conectar a nómadas digitales con cabañas en zonas rurales de España.
 
-### 🌟 Características Destacadas (Edición Final)
-* **Gestión de Archivos Reales:** Sistema de subida de imágenes (Uploads) desde el ordenador local al servidor mediante `multer`.
-* **Sistema de Opiniones:** Los usuarios pueden dejar comentarios y reseñas en tiempo real (Persistencia en SQLite).
-* **Internacionalización (i18n):** Web completamente traducida al Español 🇪🇸 e Inglés 🇬🇧.
-* **Geolocalización:** Integración de Google Maps incrustado apuntando a la sede central (Gallur).
-* **Identidad Visual:** Diseño UI/UX inmersivo con temática de naturaleza.
+Lo he hecho usando lo que hemos aprendido en clase: **Lenguajes de Marcas** (HTML/CSS), **Entornos de Desarrollo** (Git/GitHub) y un poco de **Programación** (JS y Node).
 
-## 🛠️ Tecnologías Utilizadas
-* **Frontend:** HTML5 Semántico, CSS3, JavaScript Vanilla.
-* **Backend:** Node.js, Express.
-* **Base de Datos:** SQLite (Tablas: `alojamientos` y `comentarios`).
-* **Librerías:** `multer`, `sqlite3`, `cors`, `express-validator`.
+## 🚀 ¿Qué hace la web?
+Básicamente es una web donde puedes ver alojamientos, filtrar por categorías y dejar comentarios.
+*   **Front:** HTML5 semántico y CSS (sin frameworks, todo a mano con Flexbox y Grid).
+*   **Back:** Un servidor sencillo en Node.js con Express.
+*   **Base de Datos:** SQLite para que sea fácil de mover.
+*   **Funcionalidades:**
+    *   Ver listado de cabañas.
+    *   Subir fotos reales desde tu PC (usando `multer`).
+    *   Dejar comentarios que se guardan de verdad.
+    *   Mapa de ubicación (Google Maps).
 
-## ⚙️ Instalación y Puesta en Marcha
+## 🛠️ Tecnologías
+*   HTML5 & CSS3
+*   JavaScript (ES6)
+*   Node.js & Express
+*   SQLite
+*   Git & GitHub
 
-Sigue estos pasos para arrancar el proyecto en tu máquina local:
+## ⚙️ Cómo probarlo
+Si quieres correrlo en tu ordenador:
 
-### 1. Clonar el repositorio
-```bash
-git clone [https://github.com/8sandro8/NomadNest.git](https://github.com/8sandro8/NomadNest.git)
+1.  Bájate el código:
+    ```bash
+    git clone https://github.com/8sandro8/NomadNest.git
+    ```
+2.  Entra en la carpeta:
+    ```bash
+    cd NomadNest
+    ```
+3.  Instala lo necesario (tienes que tener Node instalado):
+    ```bash
+    npm install
+    ```
+4.  Arranca el servidor:
+    ```bash
+    node backend/server.js
+    ```
+5.  Abre el navegador en `http://localhost:3000/frontend/index.html`.
+
+---
+*Hecho por Sandro para el ciclo de DAM.* 💻⛺

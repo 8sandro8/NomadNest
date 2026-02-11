@@ -46,7 +46,7 @@ const translations = {
 
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('products-container')) {
-        cargarAlojamientos(); // Home
+        cargarAlojamientos();
     }
 
     // Si estamos en el home (admin section), cargar categorías
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (document.getElementById('detail-container')) {
-        cargarDetalle(); // Detalle
+        cargarDetalle();
     }
 
     const formCrear = document.getElementById('form-crear');
@@ -92,7 +92,7 @@ function changeLanguage(lang) {
     });
 }
 
-// --- VALIDACIÓN FRONTEND ---
+
 function validarFormulario() {
     const nombre = document.getElementById('nombre').value.trim();
     const precio = document.getElementById('precio').value;
@@ -118,7 +118,7 @@ function validarFormulario() {
     return true;
 }
 
-// --- API: CARGAR CATEGORIAS ---
+
 async function cargarCategorias() {
     try {
         const res = await fetch('http://localhost:3000/api/categorias');
@@ -136,7 +136,7 @@ async function cargarCategorias() {
     }
 }
 
-// --- HOME ---
+
 async function cargarAlojamientos() {
     try {
         const respuesta = await fetch(`http://localhost:3000/api/alojamientos?t=${Date.now()}`);
@@ -181,7 +181,7 @@ async function cargarAlojamientos() {
     }
 }
 
-// --- DETALLE ---
+
 async function cargarDetalle() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
@@ -207,7 +207,7 @@ async function cargarDetalle() {
     } catch (error) { console.error(error); }
 }
 
-// --- COMENTARIOS ---
+
 async function cargarComentarios(idAlojamiento) {
     try {
         const respuesta = await fetch(`http://localhost:3000/api/comentarios/${idAlojamiento}`);
@@ -252,7 +252,7 @@ async function publicarComentario() {
 
         if (respuesta.ok) {
             document.getElementById('form-comentario').reset();
-            cargarComentarios(idAlojamiento); // Recargar la lista
+            cargarComentarios(idAlojamiento);
         } else {
             alert("Error al enviar comentario");
         }
@@ -282,7 +282,6 @@ async function crearAlojamiento() {
         const respuesta = await fetch('http://localhost:3000/api/alojamientos', {
             method: 'POST',
             headers: {
-                // Header simulado de admin para pasar el middleware
                 'x-admin-token': 'secret123'
             },
             body: formData

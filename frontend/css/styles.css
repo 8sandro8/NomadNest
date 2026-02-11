@@ -43,7 +43,7 @@ html {
     margin-bottom: 2.5rem;
 }
 
-/* --- HEADER & NAV --- */
+
 .main-header {
     background-color: rgba(255, 255, 255, 0.95);
     padding: 1rem 2rem;
@@ -94,7 +94,7 @@ html {
     color: var(--color-primary);
 }
 
-/* --- HERO SECTION --- */
+
 .hero-section {
     background: linear-gradient(rgba(20, 40, 30, 0.5), rgba(20, 40, 30, 0.5)), url('../img/hero-bg.jpg');
     background-size: cover;
@@ -126,7 +126,7 @@ html {
     margin-right: auto;
 }
 
-/* --- BUTTONS --- */
+
 .btn-primary {
     background-color: var(--color-secondary);
     color: white;
@@ -169,7 +169,7 @@ html {
     color: white;
 }
 
-/* --- SECTIONS SPECIFIC --- */
+
 .about-section {
     padding: 5rem 2rem;
     background: white;
@@ -181,7 +181,7 @@ html {
     margin: 0 auto;
 }
 
-/* --- PRODUCTS GRID --- */
+
 .products-section,
 .admin-section {
     max-width: 1200px;
@@ -275,7 +275,7 @@ html {
     font-weight: bold;
 }
 
-/* --- ADMIN FORM --- */
+
 .admin-section {
     background-color: white;
     box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
@@ -321,7 +321,7 @@ html {
     margin-bottom: 0.5rem;
 }
 
-/* --- CONTACT --- */
+
 .contact-section {
     background-color: transparent;
     padding: 4rem 1rem;
@@ -392,7 +392,7 @@ html {
     border: 0;
 }
 
-/* --- FOOTER --- */
+
 .main-footer {
     background-color: var(--color-primary);
     color: white;
@@ -547,7 +547,7 @@ html {
     min-height: 100px;
 }
 
-/* --- RESPONSIVE MEDIA QUERIES (TABLET & MOBILE) --- */
+
 @media (max-width: 900px) {
 
     .container-narrow,
