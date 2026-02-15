@@ -305,7 +305,13 @@ async function crearAlojamiento() {
     } catch (error) { console.error(error); }
 }
 
-cargarAlojamientos();
+window.borrarAlojamiento = async function (id) {
+    if (confirm("¿Borrar alojamiento?")) {
+        await fetch(`http://localhost:3000/api/alojamientos/${id}`, {
+            method: 'DELETE',
+            headers: { 'x-admin-token': 'secret123' }
+        });
+        cargarAlojamientos();
     }
 }
 
