@@ -46,7 +46,7 @@ const translations = {
 
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('products-container')) {
-        cargarAlojamientos();
+        cargarAlojamientos(); // Home
     }
 
     // Si estamos en el home (admin section), cargar categorías
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (document.getElementById('detail-container')) {
-        cargarDetalle();
+        cargarDetalle(); // Detalle
     }
 
     const formCrear = document.getElementById('form-crear');
@@ -92,7 +92,7 @@ function changeLanguage(lang) {
     });
 }
 
-
+// --- VALIDACIÓN FRONTEND ---
 function validarFormulario() {
     const nombre = document.getElementById('nombre').value.trim();
     const precio = document.getElementById('precio').value;
@@ -118,7 +118,7 @@ function validarFormulario() {
     return true;
 }
 
-
+// --- API: CARGAR CATEGORIAS ---
 async function cargarCategorias() {
     try {
         const res = await fetch('http://localhost:3000/api/categorias');
@@ -136,7 +136,7 @@ async function cargarCategorias() {
     }
 }
 
-
+// --- HOME ---
 async function cargarAlojamientos() {
     try {
         const respuesta = await fetch(`http://localhost:3000/api/alojamientos?t=${Date.now()}`);
@@ -155,25 +155,22 @@ async function cargarAlojamientos() {
 
             // Renderizado seguro sin estilos en línea (usando clases definidas en CSS)
             tarjeta.innerHTML = `
-                <div class="card-image">
+                <div class="card-image" style="background-image: url('${imagenUrl}');">
                     <button class="card-delete-btn" onclick="borrarAlojamiento(${alo.id})">X</button>
                 </div>
                 <div class="card-content">
                     <div>
-                        <h3 class="card-title">${alo.nombre}</h3>
-                        <p class="card-description">${alo.descripcion}</p>
-                        ${alo.categoria_nombre ? `<small class="card-category-text">${alo.categoria_nombre}</small>` : ''}
+                        <h3>${alo.nombre}</h3>
+                        <p>${alo.descripcion}</p>
+                        ${alo.categoria_nombre ? `<small style="color:var(--color-primary); font-weight:bold;">${alo.categoria_nombre}</small>` : ''}
                     </div>
                     <div class="card-footer">
                         <span class="price">${alo.precio}€ / noche</span>
                         <span class="wifi-badge">⚡ ${alo.wifi_speed} Mb</span>
                     </div>
-                    <button class="btn-secondary btn-block" onclick="editarPrecio(${alo.id}, ${alo.precio})">✏️ Editar Precio</button>
-                    <a href="detalle.html?id=${alo.id}" class="btn-secondary btn-details">Ver detalles</a>
+                    <a href="detalle.html?id=${alo.id}" class="btn-secondary" style="display:block; text-align:center; text-decoration:none;">Ver detalles</a>
                 </div>
             `;
-            // Aplicar imagen de fondo dinámicamente sin usar atributo style en el HTML string
-            tarjeta.querySelector('.card-image').style.backgroundImage = `url('${imagenUrl}')`;
             contenedor.appendChild(tarjeta);
         });
     } catch (error) {
@@ -182,7 +179,7 @@ async function cargarAlojamientos() {
     }
 }
 
-
+// --- DETALLE ---
 async function cargarDetalle() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
@@ -208,7 +205,7 @@ async function cargarDetalle() {
     } catch (error) { console.error(error); }
 }
 
-
+// --- COMENTARIOS ---
 async function cargarComentarios(idAlojamiento) {
     try {
         const respuesta = await fetch(`http://localhost:3000/api/comentarios/${idAlojamiento}`);
@@ -218,19 +215,20 @@ async function cargarComentarios(idAlojamiento) {
         lista.innerHTML = '';
 
         if (comentarios.length === 0) {
-            lista.innerHTML = '<p class="comment-empty">Sé el primero en opinar.</p>';
+            lista.innerHTML = '<p style="color:#777; font-style:italic;">Sé el primero en opinar.</p>';
             return;
         }
 
         comentarios.forEach(c => {
             const item = document.createElement('div');
-            item.className = 'comment-item';
+            item.style.borderBottom = '1px solid #eee';
+            item.style.padding = '10px 0';
             item.innerHTML = `
-                <div class="comment-header">
-                    <strong class="comment-author">${c.usuario}</strong>
-                    <span class="comment-date">${c.fecha}</span>
+                <div style="display:flex; justify-content:space-between;">
+                    <strong style="color:var(--color-primary);">${c.usuario}</strong>
+                    <span style="font-size:0.8rem; color:#999;">${c.fecha}</span>
                 </div>
-                <p class="comment-text">${c.texto}</p>
+                <p style="margin-top:5px; color:#555;">${c.texto}</p>
             `;
             lista.appendChild(item);
         });
@@ -253,7 +251,7 @@ async function publicarComentario() {
 
         if (respuesta.ok) {
             document.getElementById('form-comentario').reset();
-            cargarComentarios(idAlojamiento);
+            cargarComentarios(idAlojamiento); // Recargar la lista
         } else {
             alert("Error al enviar comentario");
         }
@@ -283,6 +281,7 @@ async function crearAlojamiento() {
         const respuesta = await fetch('http://localhost:3000/api/alojamientos', {
             method: 'POST',
             headers: {
+                // Header simulado de admin para pasar el middleware
                 'x-admin-token': 'secret123'
             },
             body: formData
@@ -305,25 +304,12 @@ async function crearAlojamiento() {
     } catch (error) { console.error(error); }
 }
 
-cargarAlojamientos();
-    }
-}
-
-window.editarPrecio = async function (id, precioActual) {
-    const nuevoPrecio = prompt(`Introduce el nuevo precio para la cabaña (Actual: ${precioActual}€):`, precioActual);
-    if (nuevoPrecio && !isNaN(nuevoPrecio) && nuevoPrecio !== precioActual.toString()) {
-        try {
-            const respuesta = await fetch(`http://localhost:3000/api/alojamientos/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'x-admin-token': 'secret123' },
-                body: JSON.stringify({ precio: parseFloat(nuevoPrecio) })
-            });
-            if (respuesta.ok) {
-                alert("✅ Precio actualizado correctamente");
-                cargarAlojamientos();
-            } else {
-                alert("❌ Error al actualizar el precio");
-            }
-        } catch (error) { console.error(error); }
+window.borrarAlojamiento = async function (id) {
+    if (confirm("¿Borrar alojamiento?")) {
+        await fetch(`http://localhost:3000/api/alojamientos/${id}`, {
+            method: 'DELETE',
+            headers: { 'x-admin-token': 'secret123' }
+        });
+        cargarAlojamientos();
     }
 }

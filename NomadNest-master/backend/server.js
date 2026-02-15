@@ -116,21 +116,6 @@ app.post('/api/alojamientos',
     }
 );
 
-// PUT Actualizar Alojamiento (NUEVO - Completa el CRUD)
-app.put('/api/alojamientos/:id', checkAuth, [
-    body('precio').isNumeric().withMessage('El precio debe ser un número')
-], (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-
-    const sql = "UPDATE alojamientos SET precio = ? WHERE id = ?";
-    db.run(sql, [req.body.precio, req.params.id], function (err) {
-        if (err) return res.status(500).json({ error: err.message });
-        if (this.changes === 0) return res.status(404).json({ message: "No encontrado" });
-        res.json({ message: "Precio actualizado correctamente" });
-    });
-});
-
 // DELETE Eliminar Alojamiento (Protegido)
 app.delete('/api/alojamientos/:id', checkAuth, (req, res) => {
     const sql = "DELETE FROM alojamientos WHERE id = ?";
