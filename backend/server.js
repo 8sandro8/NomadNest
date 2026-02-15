@@ -5,7 +5,7 @@ const multer = require('multer');
 const path = require('path');
 const { body, validationResult } = require('express-validator');
 const app = express();
-const PORT = 3000;
+const PORT = 3010;
 
 app.use(cors());
 app.use(express.json());
@@ -130,6 +130,29 @@ app.put('/api/alojamientos/:id', checkAuth, [
         res.json({ message: "Precio actualizado correctamente" });
     });
 });
+
+// PUT Actualizar Precio (Protegido)
+app.put('/api/alojamientos/:id',
+    checkAuth,
+    [
+        body('precio').isNumeric().withMessage('El precio debe ser un número')
+    ],
+    (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const { precio } = req.body;
+        const sql = "UPDATE alojamientos SET precio = ? WHERE id = ?";
+
+        db.run(sql, [precio, req.params.id], function (err) {
+            if (err) return res.status(500).json({ error: err.message });
+            if (this.changes === 0) return res.status(404).json({ message: "No encontrado" });
+            res.json({ message: "Precio actualizado correctamente" });
+        });
+    }
+);
 
 // DELETE Eliminar Alojamiento (Protegido)
 app.delete('/api/alojamientos/:id', checkAuth, (req, res) => {

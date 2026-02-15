@@ -41,7 +41,11 @@ Aunque la IA proporcionó una base sólida para los colores y la tipografía, to
 2.  **Espaciado (Whitespace)**: Aumenté el `padding` de las secciones a `5rem` (la IA sugería 2rem) para dar un aspecto más "premium" y aireado, típico de las web de viajes de lujo.
 3.  **Micro-interacciones**: Añadí transiciones CSS (`transition: all 0.3s`) a todos los elementos interactivos. La IA dio el código estático, pero la sensación de "suavidad" es un aporte personal para mejorar la experiencia de usuario (UX).
 
-4. **Reflexión Final: ¿Qué cambiaría sin IA?**
-Si tuviera que realizar este diseño sin la ayuda de la IA generativa, **cambiaría el enfoque del Hero Section**. La IA sugirió una imagen estática de fondo, pero manualmente hubiera optado por un video en bucle (HTML5 video) para transmitir mejor la atmósfera de "naturaleza viva". Además, la IA tiende a usar retículas (grids) muy estándar; sin su influencia, hubiera experimentado con un diseño asimétrico tipo "masonry" para las tarjetas de alojamiento, dándole un toque más orgánico y menos rígido.
-
 En conclusión, la IA actuó como un "Consultor Creativo" inicial, pero la implementación técnica y el pulido final requirieron criterio humano para cumplir con los estándares W3C y las heurísticas de usabilidad.
+
+## 5. ¿Qué cambiarías o mejorarías si hicieras el diseño sin ayuda de IA?
+Si hubiera realizado el diseño sin ayuda de IA, el proceso habría sido más lento pero quizás más "orgánico". La IA tiende a sugerir estructuras muy estándar (Hero -> Features -> Contact). Sin IA, probablemente habría explorado:
+1.  **Layouts asimétricos**: Para romper la rigidez de las secciones en bloque y dar una sensación más natural, acorde con la temática de "bosque".
+2.  **Tipografía más arriesgada**: La IA sugirió fuentes muy seguras (Sora/Nunito). Yo habría probado combinaciones de Serif modernas para los títulos para dar un toque más editorial.
+3.  **Paleta de colores menos saturada**: La IA propuso colores muy vibrantes para "vender". Yo habría optado por tonos tierra más desaturados y texturas de papel o grano para enfatizar lo "analógico" de la desconexión digital.
+

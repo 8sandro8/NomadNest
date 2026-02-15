@@ -121,7 +121,7 @@ function validarFormulario() {
 
 async function cargarCategorias() {
     try {
-        const res = await fetch('http://localhost:3000/api/categorias');
+        const res = await fetch('http://localhost:3010/api/categorias');
         const categorias = await res.json();
         const select = document.getElementById('categoria');
         select.innerHTML = '<option value="">Selecciona una categoría...</option>';
@@ -139,7 +139,7 @@ async function cargarCategorias() {
 
 async function cargarAlojamientos() {
     try {
-        const respuesta = await fetch(`http://localhost:3000/api/alojamientos?t=${Date.now()}`);
+        const respuesta = await fetch(`http://localhost:3010/api/alojamientos?t=${Date.now()}`);
         const alojamientos = await respuesta.json();
 
         const contenedor = document.getElementById('products-container');
@@ -160,16 +160,16 @@ async function cargarAlojamientos() {
                 </div>
                 <div class="card-content">
                     <div>
-                        <h3 class="card-title">${alo.nombre}</h3>
-                        <p class="card-description">${alo.descripcion}</p>
-                        ${alo.categoria_nombre ? `<small class="card-category-text">${alo.categoria_nombre}</small>` : ''}
+                        <h3>${alo.nombre}</h3>
+                        <p>${alo.descripcion}</p>
+                        ${alo.categoria_nombre ? `<small class="card-category-small">${alo.categoria_nombre}</small>` : ''}
                     </div>
                     <div class="card-footer">
                         <span class="price">${alo.precio}€ / noche</span>
                         <span class="wifi-badge">⚡ ${alo.wifi_speed} Mb</span>
                     </div>
                     <button class="btn-secondary btn-block" onclick="editarPrecio(${alo.id}, ${alo.precio})">✏️ Editar Precio</button>
-                    <a href="detalle.html?id=${alo.id}" class="btn-secondary btn-details">Ver detalles</a>
+                    <a href="detalle.html?id=${alo.id}" class="btn-secondary btn-details-link">Ver detalles</a>
                 </div>
             `;
             // Aplicar imagen de fondo dinámicamente sin usar atributo style en el HTML string
@@ -190,7 +190,7 @@ async function cargarDetalle() {
 
     try {
         // 1. Cargar Info Alojamiento
-        const respAlo = await fetch(`http://localhost:3000/api/alojamientos/${id}`);
+        const respAlo = await fetch(`http://localhost:3010/api/alojamientos/${id}`);
         const alo = await respAlo.json();
 
         const imagenUrl = alo.imagen && (alo.imagen.startsWith('http') || alo.imagen.startsWith('img/'))
@@ -211,26 +211,26 @@ async function cargarDetalle() {
 
 async function cargarComentarios(idAlojamiento) {
     try {
-        const respuesta = await fetch(`http://localhost:3000/api/comentarios/${idAlojamiento}`);
+        const respuesta = await fetch(`http://localhost:3010/api/comentarios/${idAlojamiento}`);
         const comentarios = await respuesta.json();
 
         const lista = document.getElementById('comments-list');
         lista.innerHTML = '';
 
         if (comentarios.length === 0) {
-            lista.innerHTML = '<p class="comment-empty">Sé el primero en opinar.</p>';
+            lista.innerHTML = '<p class="comment-empty-msg">Sé el primero en opinar.</p>';
             return;
         }
 
         comentarios.forEach(c => {
             const item = document.createElement('div');
-            item.className = 'comment-item';
+            item.className = 'comment-item-styled';
             item.innerHTML = `
-                <div class="comment-header">
-                    <strong class="comment-author">${c.usuario}</strong>
-                    <span class="comment-date">${c.fecha}</span>
+                <div class="comment-header-styled">
+                    <strong class="comment-author-styled">${c.usuario}</strong>
+                    <span class="comment-date-styled">${c.fecha}</span>
                 </div>
-                <p class="comment-text">${c.texto}</p>
+                <p class="comment-body-styled">${c.texto}</p>
             `;
             lista.appendChild(item);
         });
@@ -245,7 +245,7 @@ async function publicarComentario() {
     const texto = document.getElementById('comentario-texto').value;
 
     try {
-        const respuesta = await fetch('http://localhost:3000/api/comentarios', {
+        const respuesta = await fetch('http://localhost:3010/api/comentarios', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ alojamiento_id: idAlojamiento, usuario, texto })
@@ -280,7 +280,7 @@ async function crearAlojamiento() {
     }
 
     try {
-        const respuesta = await fetch('http://localhost:3000/api/alojamientos', {
+        const respuesta = await fetch('http://localhost:3010/api/alojamientos', {
             method: 'POST',
             headers: {
                 'x-admin-token': 'secret123'
@@ -307,7 +307,7 @@ async function crearAlojamiento() {
 
 window.borrarAlojamiento = async function (id) {
     if (confirm("¿Borrar alojamiento?")) {
-        await fetch(`http://localhost:3000/api/alojamientos/${id}`, {
+        await fetch(`http://localhost:3010/api/alojamientos/${id}`, {
             method: 'DELETE',
             headers: { 'x-admin-token': 'secret123' }
         });
@@ -319,7 +319,7 @@ window.editarPrecio = async function (id, precioActual) {
     const nuevoPrecio = prompt(`Introduce el nuevo precio para la cabaña (Actual: ${precioActual}€):`, precioActual);
     if (nuevoPrecio && !isNaN(nuevoPrecio) && nuevoPrecio !== precioActual.toString()) {
         try {
-            const respuesta = await fetch(`http://localhost:3000/api/alojamientos/${id}`, {
+            const respuesta = await fetch(`http://localhost:3010/api/alojamientos/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'x-admin-token': 'secret123' },
                 body: JSON.stringify({ precio: parseFloat(nuevoPrecio) })
