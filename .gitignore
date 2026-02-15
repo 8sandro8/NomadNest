@@ -1,0 +1,12 @@
+# Dependencias de Node (Backend)
+node_modules/
+
+# Base de datos 
+*.sqlite
+*.db
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+*.log
