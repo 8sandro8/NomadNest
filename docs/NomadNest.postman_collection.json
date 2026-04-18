@@ -1,0 +1,903 @@
+{
+  "info": {
+    "name": "NomadNest API",
+    "description": "Colección completa de la API NomadNest para testing y desarrollo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3010",
+      "type": "default"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "alojamientoId",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "categoriaId",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "comentarioId",
+      "value": "",
+      "type": "default"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-refresh token si está próximo a expirar"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('Status 200', function() {",
+          "    pm.response.to.have.status(200);",
+          "});",
+          "",
+          "// Guardar tokens después de login",
+          "if (pm.request.url.path.includes('login') && pm.response.json().success) {",
+          "    var jsonData = pm.response.json();",
+          "    pm.collectionVariables.set('accessToken', jsonData.accessToken);",
+          "    pm.collectionVariables.set('refreshToken', jsonData.refreshToken);",
+          "    pm.collectionVariables.set('userId', jsonData.user.id);",
+          "}",
+          "",
+          "// Guardar IDs creados",
+          "if (pm.request.url.path.includes('alojamientos') && pm.request.method === 'POST') {",
+          "    var jsonData = pm.response.json();",
+          "    if (jsonData.id) pm.collectionVariables.set('alojamientoId', jsonData.id);",
+          "}",
+          "",
+          "if (pm.request.url.path.includes('categorias') && pm.request.method === 'POST') {",
+          "    var jsonData = pm.response.json();",
+          "    if (jsonData.id) pm.collectionVariables.set('categoriaId', jsonData.id);",
+          "}",
+          "",
+          "if (pm.request.url.path.includes('comentarios') && pm.request.method === 'POST') {",
+          "    var jsonData = pm.response.json();",
+          "    if (jsonData.id) pm.collectionVariables.set('comentarioId', jsonData.id);",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Autenticación",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"admin\",\n    \"password\": \"admin123\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login exitoso', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test('Token de acceso recibido', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.accessToken).to.not.be.undefined;",
+                  "});",
+                  "",
+                  "pm.test('Refresh token recibido', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.refreshToken).to.not.be.undefined;",
+                  "});",
+                  "",
+                  "// Guardar tokens",
+                  "if (pm.response.json().success) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('accessToken', jsonData.accessToken);",
+                  "    pm.collectionVariables.set('refreshToken', jsonData.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "refresh"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Refresh exitoso', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test('Nuevo access token', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.accessToken).to.not.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Logout exitoso', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "});",
+                  "",
+                  "// Limpiar tokens",
+                  "pm.collectionVariables.set('accessToken', '');",
+                  "pm.collectionVariables.set('refreshToken', '');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Me (Get Current User)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Usuario autenticado', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test('Datos de usuario presentes', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.user).to.not.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Categorías",
+      "item": [
+        {
+          "name": "GET Todas las Categorías",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/categorias",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categorias"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Categorías obtenidas', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Array de categorías', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Crear Categoría",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/categorias",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categorias"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nombre\": \"Hostel\",\n    \"descripcion\": \"Hosteles económicos\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Categoría creada', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('ID de categoría correcto', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.not.be.undefined;",
+                  "});",
+                  "",
+                  "pm.test('Nombre correcto', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.nombre).to.equal('Hostel');",
+                  "});",
+                  "",
+                  "if (pm.response.json().id) {",
+                  "    pm.collectionVariables.set('categoriaId', pm.response.json().id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT Actualizar Categoría",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{baseUrl}}/api/categorias/{{categoriaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categorias", "{{categoriaId}}"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nombre\": \"Hostel Actualizado\",\n    \"descripcion\": \"Descripción actualizada\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Categoría actualizada', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE Categoría",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/categorias/{{categoriaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categorias", "{{categoriaId}}"]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Categoría eliminada', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Alojamientos",
+      "item": [
+        {
+          "name": "GET Todos los Alojamientos",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/alojamientos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "alojamientos"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Alojamientos obtenidos', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Array de alojamientos', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Alojamiento por ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/alojamientos/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "alojamientos", "1"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Alojamiento encontrado', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Crear Alojamiento",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/alojamientos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "alojamientos"]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Hotel Postman Test",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Hotel de prueba creado desde Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "precio",
+                  "value": "99",
+                  "type": "text"
+                },
+                {
+                  "key": "wifi_speed",
+                  "value": "50",
+                  "type": "text"
+                },
+                {
+                  "key": "categoria_id",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Alojamiento creado', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Nombre correcto', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.nombre).to.equal('Hotel Postman Test');",
+                  "});",
+                  "",
+                  "if (pm.response.json().id) {",
+                  "    pm.collectionVariables.set('alojamientoId', pm.response.json().id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT Actualizar Precio",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{baseUrl}}/api/alojamientos/{{alojamientoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "alojamientos", "{{alojamientoId}}"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"precio\": 125.00\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Precio actualizado', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Mensaje de éxito', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.include('actualizado');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE Alojamiento",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/alojamientos/{{alojamientoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "alojamientos", "{{alojamientoId}}"]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Alojamiento eliminado', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Comentarios",
+      "item": [
+        {
+          "name": "GET Comentarios por Alojamiento",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/comentarios/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "comentarios", "1"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Comentarios obtenidos', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Array de comentarios', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Crear Comentario",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/comentarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "comentarios"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"alojamiento_id\": 1,\n    \"usuario\": \"postman_user\",\n    \"texto\": \"Excelente hotel, muy recomendable para estancias largas\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Comentario creado', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Usuario correcto', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.usuario).to.equal('postman_user');",
+                  "});",
+                  "",
+                  "if (pm.response.json().id) {",
+                  "    pm.collectionVariables.set('comentarioId', pm.response.json().id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT Actualizar Comentario",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{baseUrl}}/api/comentarios/{{comentarioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "comentarios", "{{comentarioId}}"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"texto\": \"Comentario actualizado desde Postman\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Comentario actualizado', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE Comentario",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/comentarios/{{comentarioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "comentarios", "{{comentarioId}}"]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Comentario eliminado', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Tests",
+      "item": [
+        {
+          "name": "Test Flujo Completo",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"admin\",\n    \"password\": \"admin123\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Test: Login y flujo completo",
+                  "console.log('=== Test: Flujo Completo ===');",
+                  "",
+                  "pm.test('1. Login exitoso', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test('2. Access token recibido', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.accessToken).to.not.be.undefined;",
+                  "});",
+                  "",
+                  "pm.test('3. Refresh token recibido', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.refreshToken).to.not.be.undefined;",
+                  "});",
+                  "",
+                  "pm.test('4. Usuario es admin', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.user.role).to.equal('admin');",
+                  "});",
+                  "",
+                  "// Guardar tokens para siguiente request",
+                  "if (pm.response.json().success) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('accessToken', jsonData.accessToken);",
+                  "    pm.collectionVariables.set('refreshToken', jsonData.refreshToken);",
+                  "    console.log('Tokens guardados para siguientes requests');",
+                  "}",
+                  "",
+                  "console.log('=== Fin Test: Flujo Completo ===');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Test Autenticación Error",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"invalid_user\",\n    \"password\": \"wrong_password\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login fallido con credenciales inválidas', function() {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test('Error en respuesta', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.false;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

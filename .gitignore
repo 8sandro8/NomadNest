@@ -1,6 +1,9 @@
 # Dependencias de Node (Backend)
 node_modules/
 
+# Variables de entorno (sensitive)
+backend/.env
+
 # Base de datos 
 *.sqlite
 *.db
@@ -10,3 +13,10 @@ node_modules/
 Thumbs.db
 
 *.log
+
+# Configuraciones y documentación de AI
+.clinerules
+agents.md
+AGENTS.md
+PRD.md
+SDD.md

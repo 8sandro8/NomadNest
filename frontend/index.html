@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cabañas rurales con WiFi de alta velocidad en plena naturaleza. Trabaja remoto desde el bosque.">
     <title>NomadNest | Naturaleza y Conexión</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,22 +27,60 @@
                 <li><a href="#products" class="nav-link" data-translate="nav_nests">Alojamientos</a></li>
                 <li><a href="#contact" class="nav-link" data-translate="nav_contact">Contacto</a></li>
                 <li>
-                    <select id="language-selector" class="lang-select">
-                        <option value="es">🇪🇸 ES</option>
-                        <option value="en">🇬🇧 EN</option>
+                    <label for="language-selector" class="visually-hidden">Seleccionar idioma</label>
+                    <select id="language-selector" class="lang-select" aria-label="Seleccionar idioma">
+                        <option value="es" lang="es">ES</option>
+                        <option value="en" lang="en">EN</option>
                     </select>
                 </li>
+                
             </ul>
         </nav>
     </header>
 
     <main>
-        <section id="hero" class="hero-section">
-            <div class="hero-content">
-                <h1 data-translate="hero_title" class="hero-title">Tu oficina en el bosque</h1>
-                <p data-translate="hero_subtitle" class="hero-subtitle">Cabañas con WiFi de alta velocidad en plena
-                    naturaleza.</p>
-                <button class="btn-primary" data-translate="hero_cta">Explorar Nidos</button>
+        <section id="hero" class="hero-carousel" role="region" aria-label="Carrusel de destacados">
+            <div class="carousel-container" aria-live="polite">
+                <!-- Slide 1 -->
+                <article class="carousel-slide active" aria-label="Slide 1: Tu oficina en el bosque">
+                    <img src="img/uploads/cabana1.jpg" alt="Cabaña en el bosque" class="slide-image">
+                    <div class="slide-content">
+                        <h2 data-translate="hero_title" class="hero-title">Tu oficina en el bosque</h2>
+                        <p data-translate="hero_subtitle" class="hero-subtitle">Cabañas con WiFi de alta velocidad en plena naturaleza.</p>
+                        <button class="btn-primary" data-translate="hero_cta">Explorar Nidos</button>
+                    </div>
+                </article>
+
+                <!-- Slide 2 -->
+                <article class="carousel-slide" aria-label="Slide 2: Nature's WiFi">
+                    <img src="img/uploads/estudio1.jpg" alt="Estudio junto al lago" class="slide-image">
+                    <div class="slide-content">
+                        <h2 class="hero-title">Nature's WiFi</h2>
+                        <p class="hero-subtitle">Conecta con lo esencial. Internet ultrarrápido sin perder conexión con la naturaleza.</p>
+                        <button class="btn-primary" data-translate="hero_cta">Ver Experiencias</button>
+                    </div>
+                </article>
+
+                <!-- Slide 3 -->
+                <article class="carousel-slide" aria-label="Slide 3: Code & Breathe">
+                    <img src="img/uploads/refugio1.jpg" alt="Refugio en montaña" class="slide-image">
+                    <div class="slide-content">
+                        <h2 class="hero-title">Code & Breathe</h2>
+                        <p class="hero-subtitle">Desarrolla mientras escuchas pájaros. La oficina definitiva para remoto workers.</p>
+                        <button class="btn-primary" data-translate="hero_cta">Descubre Más</button>
+                    </div>
+                </article>
+
+                <!-- Controles de navegación -->
+                <button class="carousel-prev" aria-label="Anterior" aria-hidden="true">&#10094;</button>
+                <button class="carousel-next" aria-label="Siguiente" aria-hidden="true">&#10095;</button>
+
+                <!-- Indicadores/Puntos de navegación -->
+                <div class="carousel-indicators" role="tablist" aria-label="Navegación del carrusel">
+                    <button class="indicator active" role="tab" aria-label="Ir a slide 1" aria-selected="true"></button>
+                    <button class="indicator" role="tab" aria-label="Ir a slide 2" aria-selected="false"></button>
+                    <button class="indicator" role="tab" aria-label="Ir a slide 3" aria-selected="false"></button>
+                </div>
             </div>
         </section>
 
@@ -68,33 +107,51 @@
             </div>
         </section>
 
-        <section id="admin" class="admin-section">
+        <section id="admin-section" class="admin-section">
             <h2 class="section-title text-center" data-translate="admin_title">🛠️ Gestión de Nidos (CRUD)</h2>
 
-            <form id="form-crear" class="admin-form" enctype="multipart/form-data">
-                <div class="form-grid">
-                    <input type="text" id="nombre" class="form-input" placeholder="Nombre" required>
-                    <input type="number" id="precio" class="form-input" placeholder="Precio (€)" required>
-                </div>
+            <form id="form-crear" class="admin-form" enctype="multipart/form-data" aria-label="Formulario para crear nuevo alojamiento">
+                <fieldset class="form-fieldset">
+                    <legend class="form-legend">Datos básicos del alojamiento</legend>
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label for="nombre" class="form-label">Nombre</label>
+                            <input type="text" id="nombre" class="form-input" placeholder="Nombre" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="precio" class="form-label">Precio (€)</label>
+                            <input type="number" id="precio" class="form-input" placeholder="Precio (€)" required>
+                        </div>
+                    </div>
+                </fieldset>
 
                 <div class="form-group">
-                    <label class="form-label">📸 Añadir Foto Principal:</label>
-                    <input type="file" id="foto" class="form-input-file" accept="image/*">
+                    <label for="foto" class="form-label">📸 Añadir Foto Principal:</label>
+                    <input type="file" id="foto" class="form-input-file" accept="image/*" aria-describedby="foto-help">
+                    <span id="foto-help" class="form-help">Formatos compatibles: JPG, PNG, WebP</span>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Categoría:</label>
-                    <select id="categoria" class="form-input form-select" required>
+                <fieldset class="form-fieldset">
+                    <legend class="form-legend">Detalles del alojamiento</legend>
+                    <div class="form-group">
+                        <label for="categoria" class="form-label">Categoría</label>
+                        <select id="categoria" class="form-input form-select" required>
 
-                    </select>
-                </div>
+                        </select>
+                    </div>
 
-                <input type="text" id="descripcion" class="form-input" placeholder="Descripción corta" required>
+                    <div class="form-field">
+                        <label for="descripcion" class="form-label">Descripción corta</label>
+                        <input type="text" id="descripcion" class="form-input" placeholder="Descripción corta" required>
+                    </div>
 
-                <input type="number" id="wifi" class="form-input" placeholder="Velocidad WiFi (Mb)" required>
+                    <div class="form-field">
+                        <label for="wifi" class="form-label">Velocidad WiFi (Mb)</label>
+                        <input type="number" id="wifi" class="form-input" placeholder="Velocidad WiFi (Mb)" required>
+                    </div>
+                </fieldset>
 
-                <button type="submit" class="btn-primary btn-block" data-translate="admin_btn">Guardar Nuevo
-                    Nido</button>
+                <button type="submit" class="btn-primary btn-block" data-translate="admin_btn">Guardar Nuevo Nido</button>
             </form>
         </section>
 
@@ -141,22 +198,26 @@
         </section>
     </main>
 
-    <footer class="main-footer" id="contact">
+    <footer class="main-footer" id="contact" role="contentinfo">
         <div class="footer-content">
-            <h3 class="footer-contact-title" data-translate="contact_office">Oficina Central</h3>
-            <div class="footer-contact-grid">
-                <div class="contact-item"><strong>📍 Gallur, Zaragoza</strong></div>
-                <div class="contact-item"><strong>📧 hola@nomadnest.com</strong></div>
-                <div class="contact-item"><strong>📱 +34 600 123 456</strong></div>
-            </div>
-            <div class="social-links">
-                <a href="https://instagram.com" target="_blank" aria-label="Instagram" class="social-icon"><i
-                        class="fa-brands fa-instagram"></i></a>
-                <a href="https://twitter.com" target="_blank" aria-label="Twitter" class="social-icon"><i
-                        class="fa-brands fa-x-twitter"></i></a>
-                <a href="https://facebook.com" target="_blank" aria-label="Facebook" class="social-icon"><i
-                        class="fa-brands fa-facebook"></i></a>
-            </div>
+            <address class="footer-address">
+                <p class="footer-contact-title" data-translate="contact_office">Oficina Central</p>
+                <div class="footer-contact-grid">
+                    <span class="contact-item"><span aria-hidden="true">📍</span> Gallur, Zaragoza</span>
+                    <a href="mailto:hola@nomadnest.com" class="contact-link"><span aria-hidden="true">📧</span> hola@nomadnest.com</a>
+                    <a href="tel:+34600123456" class="contact-link"><span aria-hidden="true">📱</span> +34 600 123 456</a>
+                </div>
+            </address>
+            <nav class="footer-social" aria-label="Redes sociales">
+                <div class="social-links">
+                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram (se abre en nueva pestaña)" class="social-icon"><i
+                            class="fa-brands fa-instagram"></i></a>
+                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter (se abre en nueva pestaña)" class="social-icon"><i
+                            class="fa-brands fa-x-twitter"></i></a>
+                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook (se abre en nueva pestaña)" class="social-icon"><i
+                            class="fa-brands fa-facebook"></i></a>
+                </div>
+            </nav>
             <p class="footer-copyright">© 2026 NomadNest - Diseñado con ❤️ en Aragón.</p>
         </div>
     </footer>

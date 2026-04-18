@@ -1,4 +1,14 @@
-// --- 1. DICCIONARIO DE IDIOMAS ---
+// =============================================================================
+// NomadNest App.js - MVP Simplificado (Sin auth complejo)
+// =============================================================================
+// Token hardcodeado para operaciones admin (CRUD)
+const ADMIN_TOKEN = 'secret123';
+
+function getAdminHeaders() {
+    return { 'x-admin-token': ADMIN_TOKEN };
+}
+
+// --- I18N ---
 const translations = {
     es: {
         nav_home: "Inicio",
@@ -44,20 +54,24 @@ const translations = {
     }
 };
 
+// --- INICIALIZACIÓN ---
 document.addEventListener('DOMContentLoaded', () => {
+    // Home: cargar alojamientos
     if (document.getElementById('products-container')) {
         cargarAlojamientos();
     }
 
-    // Si estamos en el home (admin section), cargar categorías
+    // Home: cargar categorías para el form admin
     if (document.getElementById('categoria')) {
         cargarCategorias();
     }
 
+    // Detail page
     if (document.getElementById('detail-container')) {
         cargarDetalle();
     }
 
+    // Form crear alojamiento (admin CRUD)
     const formCrear = document.getElementById('form-crear');
     if (formCrear) {
         formCrear.addEventListener('submit', async (e) => {
@@ -68,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Form comentario
     const formComentario = document.getElementById('form-comentario');
     if (formComentario) {
         formComentario.addEventListener('submit', async (e) => {
@@ -76,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Language selector
     const langSelector = document.getElementById('language-selector');
     if (langSelector) {
         langSelector.addEventListener('change', (e) => {
@@ -84,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// --- I18N ---
 function changeLanguage(lang) {
     const elements = document.querySelectorAll('[data-translate]');
     elements.forEach(el => {
@@ -92,7 +109,7 @@ function changeLanguage(lang) {
     });
 }
 
-
+// --- VALIDACIÓN ---
 function validarFormulario() {
     const nombre = document.getElementById('nombre').value.trim();
     const precio = document.getElementById('precio').value;
@@ -118,7 +135,7 @@ function validarFormulario() {
     return true;
 }
 
-
+// --- CARGAR DATOS ---
 async function cargarCategorias() {
     try {
         const res = await fetch('http://localhost:3010/api/categorias');
@@ -136,7 +153,6 @@ async function cargarCategorias() {
     }
 }
 
-
 async function cargarAlojamientos() {
     try {
         const respuesta = await fetch(`http://localhost:3010/api/alojamientos?t=${Date.now()}`);
@@ -153,7 +169,6 @@ async function cargarAlojamientos() {
             const tarjeta = document.createElement('article');
             tarjeta.className = 'card';
 
-            // Renderizado seguro sin estilos en línea (usando clases definidas en CSS)
             tarjeta.innerHTML = `
                 <div class="card-image">
                     <button class="card-delete-btn" onclick="borrarAlojamiento(${alo.id})">X</button>
@@ -168,11 +183,12 @@ async function cargarAlojamientos() {
                         <span class="price">${alo.precio}€ / noche</span>
                         <span class="wifi-badge">⚡ ${alo.wifi_speed} Mb</span>
                     </div>
-                    <button class="btn-secondary btn-block" onclick="editarPrecio(${alo.id}, ${alo.precio})">✏️ Editar Precio</button>
-                    <a href="detalle.html?id=${alo.id}" class="btn-secondary btn-details-link">Ver detalles</a>
+                    <div class="card-actions">
+                        <button class="btn-secondary" onclick="editarPrecio(${alo.id}, ${alo.precio})">✏️ Editar Precio</button>
+                        <a href="detalle.html?id=${alo.id}" class="btn-secondary btn-details-link">Ver detalles</a>
+                    </div>
                 </div>
             `;
-            // Aplicar imagen de fondo dinámicamente sin usar atributo style en el HTML string
             tarjeta.querySelector('.card-image').style.backgroundImage = `url('${imagenUrl}')`;
             contenedor.appendChild(tarjeta);
         });
@@ -182,14 +198,12 @@ async function cargarAlojamientos() {
     }
 }
 
-
 async function cargarDetalle() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
     if (!id) return;
 
     try {
-        // 1. Cargar Info Alojamiento
         const respAlo = await fetch(`http://localhost:3010/api/alojamientos/${id}`);
         const alo = await respAlo.json();
 
@@ -202,12 +216,9 @@ async function cargarDetalle() {
         document.getElementById('detail-price').innerText = `${alo.precio}€ / noche`;
         document.getElementById('detail-wifi').innerText = `⚡ ${alo.wifi_speed} Mb Fibra Óptica`;
 
-        // 2. Cargar Comentarios
         cargarComentarios(id);
-
     } catch (error) { console.error(error); }
 }
-
 
 async function cargarComentarios(idAlojamiento) {
     try {
@@ -237,6 +248,7 @@ async function cargarComentarios(idAlojamiento) {
     } catch (error) { console.error(error); }
 }
 
+// --- COMENTARIOS ---
 async function publicarComentario() {
     const params = new URLSearchParams(window.location.search);
     const idAlojamiento = params.get('id');
@@ -260,6 +272,7 @@ async function publicarComentario() {
     } catch (error) { console.error(error); }
 }
 
+// --- CRUD ADMIN (con token hardcodeado) ---
 async function crearAlojamiento() {
     const nombre = document.getElementById('nombre').value;
     const descripcion = document.getElementById('descripcion').value;
@@ -282,9 +295,7 @@ async function crearAlojamiento() {
     try {
         const respuesta = await fetch('http://localhost:3010/api/alojamientos', {
             method: 'POST',
-            headers: {
-                'x-admin-token': 'secret123'
-            },
+            headers: { ...getAdminHeaders() },
             body: formData
         });
 
@@ -309,7 +320,7 @@ window.borrarAlojamiento = async function (id) {
     if (confirm("¿Borrar alojamiento?")) {
         await fetch(`http://localhost:3010/api/alojamientos/${id}`, {
             method: 'DELETE',
-            headers: { 'x-admin-token': 'secret123' }
+            headers: { ...getAdminHeaders() }
         });
         cargarAlojamientos();
     }
@@ -321,7 +332,7 @@ window.editarPrecio = async function (id, precioActual) {
         try {
             const respuesta = await fetch(`http://localhost:3010/api/alojamientos/${id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'x-admin-token': 'secret123' },
+                headers: { 'Content-Type': 'application/json', ...getAdminHeaders() },
                 body: JSON.stringify({ precio: parseFloat(nuevoPrecio) })
             });
             if (respuesta.ok) {
@@ -332,4 +343,87 @@ window.editarPrecio = async function (id, precioActual) {
             }
         } catch (error) { console.error(error); }
     }
-}
+};
+
+// =============================================================================
+// CARRUSEL - Lógica JavaScript
+// =============================================================================
+const carousel = {
+    slides: [],
+    currentIndex: 0,
+    intervalId: null,
+    autoplayDelay: 5000,
+
+    init() {
+        const container = document.querySelector('.carousel-container');
+        if (!container) return;
+
+        this.slides = Array.from(document.querySelectorAll('.carousel-slide'));
+        if (this.slides.length === 0) return;
+
+        const prevBtn = document.querySelector('.carousel-prev');
+        const nextBtn = document.querySelector('.carousel-next');
+        const indicators = document.querySelectorAll('.indicator');
+
+        if (prevBtn) prevBtn.addEventListener('click', () => this.prev());
+        if (nextBtn) nextBtn.addEventListener('click', () => this.next());
+
+        indicators.forEach((ind, idx) => {
+            ind.addEventListener('click', () => this.goTo(idx));
+        });
+
+        this.startAutoplay();
+        container.addEventListener('mouseenter', () => this.stopAutoplay());
+        container.addEventListener('mouseleave', () => this.startAutoplay());
+    },
+
+    goTo(index) {
+        if (index < 0 || index >= this.slides.length) return;
+        if (index === this.currentIndex) return;
+
+        this.slides[this.currentIndex].classList.remove('active');
+        this.slides[this.currentIndex].setAttribute('aria-selected', 'false');
+
+        const indicators = document.querySelectorAll('.indicator');
+        if (indicators[this.currentIndex]) {
+            indicators[this.currentIndex].classList.remove('active');
+            indicators[this.currentIndex].setAttribute('aria-selected', 'false');
+        }
+
+        this.currentIndex = index;
+
+        this.slides[this.currentIndex].classList.add('active');
+        this.slides[this.currentIndex].setAttribute('aria-selected', 'true');
+
+        if (indicators[this.currentIndex]) {
+            indicators[this.currentIndex].classList.add('active');
+            indicators[this.currentIndex].setAttribute('aria-selected', 'true');
+        }
+    },
+
+    prev() {
+        const newIndex = this.currentIndex === 0 ? this.slides.length - 1 : this.currentIndex - 1;
+        this.goTo(newIndex);
+    },
+
+    next() {
+        const newIndex = this.currentIndex === this.slides.length - 1 ? 0 : this.currentIndex + 1;
+        this.goTo(newIndex);
+    },
+
+    startAutoplay() {
+        this.stopAutoplay();
+        this.intervalId = setInterval(() => this.next(), this.autoplayDelay);
+    },
+
+    stopAutoplay() {
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+        }
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    carousel.init();
+});

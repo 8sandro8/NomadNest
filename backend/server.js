@@ -1,9 +1,13 @@
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const { body, validationResult } = require('express-validator');
+const bcrypt = require('bcryptjs');
+const { generateAccessToken, generateRefreshToken, verifyToken } = require('./utils/jwt');
+require('dotenv').config();
+const initSqlJs = require('sql.js');
+
 const app = express();
 const PORT = 3010;
 
@@ -25,27 +29,196 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// --- MIDDLEWARE DE AUTENTICACIÓN (Simulado) ---
+// --- MIDDLEWARE DE AUTENTICACIÓN (JWT + Legacy) ---
 const checkAuth = (req, res, next) => {
-    // En un caso real, verificaríamos un token JWT o sesión.
-    // Para este ejercicio académico, asumimos que si llega el header 'x-admin-token' con 'secret123', es admin.
-    const token = req.headers['x-admin-token'];
-    if (token === 'secret123') {
+    // 1. Intentar JWT real primero
+    const authHeader = req.headers['authorization'];
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.split(' ')[1];
+        try {
+            const decoded = verifyToken(token);
+            db.get("SELECT id, username, role FROM usuarios WHERE id = ?", [decoded.userId], (err, user) => {
+                if (err) return res.status(500).json({ error: 'Error consultando usuario' });
+                if (!user) return res.status(401).json({ error: 'Usuario no encontrado' });
+                req.user = { userId: user.id, username: user.username, role: user.role };
+                // Verificar que sea admin
+                if (user.role !== 'admin') {
+                    return res.status(403).json({ error: "Se requiere ser Administrador." });
+                }
+                next();
+            });
+            return;
+        } catch (e) {
+            // JWT inválido, intentar legacy
+        }
+    }
+    
+    // 2. Fallback legacy x-admin-token
+    const legacyToken = req.headers['x-admin-token'];
+    if (legacyToken === 'secret123') {
+        req.user = { userId: 1, username: 'admin', role: 'admin' };
         next();
     } else {
         res.status(401).json({ error: "Acceso no autorizado. Se requiere ser Administrador." });
     }
 };
 
+// Middleware dual: JWT REAL + legacy (soporta ambos para backward compatibility)
+const authenticate = (req, res, next) => {
+    // 1. Intentar JWT real primero
+    const authHeader = req.headers['authorization'];
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.split(' ')[1];
+        try {
+            const decoded = verifyToken(token);
+            // Buscar usuario en BD para obtener role
+            db.get("SELECT id, username, role FROM usuarios WHERE id = ?", [decoded.userId], (err, user) => {
+                if (err) return res.status(500).json({ error: 'Error consultando usuario' });
+                if (!user) return res.status(401).json({ error: 'Usuario no encontrado' });
+                req.user = { userId: user.id, username: user.username, role: user.role };
+                next();
+            });
+            return;
+        } catch (e) {
+            // JWT inválido, intentar legacy
+        }
+    }
+    
+    // 2. Fallback legacy x-admin-token (para backward)
+    const legacyToken = req.headers['x-admin-token'];
+    if (legacyToken === 'secret123') {
+        req.user = { userId: 1, username: 'admin', role: 'admin' };
+        return next();
+    }
+    
+    // 3. Ambos fallaron
+    return res.status(401).json({ error: "Acceso no autorizado" });
+};
+
+// Middleware para verificar solo JWT (sin legacy)
+const requireJWT = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: "Token requerido" });
+    }
+    const token = authHeader.split(' ')[1];
+    try {
+        const decoded = verifyToken(token);
+        db.get("SELECT id, username, role FROM usuarios WHERE id = ?", [decoded.userId], (err, user) => {
+            if (err) return res.status(500).json({ error: 'Error consultando usuario' });
+            if (!user) return res.status(401).json({ error: 'Usuario no encontrado' });
+            req.user = { userId: user.id, username: user.username, role: user.role };
+            next();
+        });
+    } catch (e) {
+        return res.status(401).json({ error: "Token inválido o expirado" });
+    }
+};
+
 // --- BASE DE DATOS ---
 const dbPath = path.join(__dirname, 'nomadnest.db');
-const db = new sqlite3.Database(dbPath, (err) => {
+const Database = require('./sqlite3-shim');
+const db = new Database(dbPath, (err) => {
     if (err) console.error(err.message);
     else console.log('✅ Conectado a SQLite en: ' + dbPath);
 });
 
 // Habilitar claves foráneas
 db.run("PRAGMA foreign_keys = ON");
+
+// Almacenamiento en memoria para refresh tokens(invalidados)
+const invalidatedRefreshTokens = new Set();
+
+// --- RUTAS DE AUTENTICACIÓN ---
+
+// POST /api/auth/login
+app.post('/api/auth/login', [
+    body('username').notEmpty().trim().withMessage('Usuario requerido'),
+    body('password').notEmpty().withMessage('Contraseña requerida')
+], (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, error: errors.array()[0].msg });
+    }
+
+    const { username, password } = req.body;
+
+    db.get("SELECT * FROM usuarios WHERE username = ?", [username], (err, user) => {
+        if (err) return res.status(500).json({ success: false, error: err.message });
+        if (!user) return res.status(401).json({ success: false, error: 'Credenciales inválidas' });
+
+        const validPassword = bcrypt.compareSync(password, user.password_hash);
+        if (!validPassword) {
+            return res.status(401).json({ success: false, error: 'Credenciales inválidas' });
+        }
+
+        const accessToken = generateAccessToken(user.id);
+        const refreshToken = generateRefreshToken(user.id);
+
+        res.json({
+            success: true,
+            accessToken,
+            refreshToken,
+            user: { id: user.id, username: user.username, role: user.role }
+        });
+    });
+});
+
+// POST /api/auth/refresh
+app.post('/api/auth/refresh', [
+    body('refreshToken').notEmpty().withMessage('Refresh token requerido')
+], (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, error: errors.array()[0].msg });
+    }
+
+    const { refreshToken } = req.body;
+
+    // Verificar si está invalidado
+    if (invalidatedRefreshTokens.has(refreshToken)) {
+        return res.status(401).json({ success: false, error: 'Token invalidado' });
+    }
+
+    try {
+        const decoded = verifyToken(refreshToken, true);
+        
+        db.get("SELECT id, username, role FROM usuarios WHERE id = ?", [decoded.userId], (err, user) => {
+            if (err) return res.status(500).json({ success: false, error: err.message });
+            if (!user) return res.status(401).json({ success: false, error: 'Usuario no encontrado' });
+
+            const newAccessToken = generateAccessToken(user.id);
+
+            res.json({
+                success: true,
+                accessToken: newAccessToken,
+                user: { id: user.id, username: user.username, role: user.role }
+            });
+        });
+    } catch (e) {
+        return res.status(401).json({ success: false, error: 'Refresh token inválido o expirado' });
+    }
+});
+
+// POST /api/auth/logout
+app.post('/api/auth/logout', requireJWT, (req, res) => {
+    const authHeader = req.headers['authorization'];
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.split(' ')[1];
+        try {
+            const decoded = verifyToken(token, true);
+            invalidatedRefreshTokens.add(token);
+        } catch (e) {
+            // Ignorar errores al logout
+        }
+    }
+    res.json({ success: true, message: 'Logout exitoso' });
+});
+
+// GET /api/auth/me
+app.get('/api/auth/me', requireJWT, (req, res) => {
+    res.json({ success: true, user: req.user });
+});
 
 // --- RUTAS DE LA API ---
 
@@ -54,6 +227,85 @@ app.get('/api/categorias', (req, res) => {
     db.all("SELECT * FROM categorias", [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
+    });
+});
+
+// POST Crear categoría (solo admin)
+app.post('/api/categorias', authenticate, [
+    body('nombre').notEmpty().trim().withMessage('El nombre es obligatorio'),
+    body('descripcion').optional().trim()
+], (req, res) => {
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Solo administradores pueden crear categorías' });
+    }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { nombre, descripcion } = req.body;
+
+    db.run("INSERT INTO categorias (nombre, descripcion) VALUES (?, ?)", [nombre, descripcion || ''], function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ id: this.lastID, nombre, descripcion: descripcion || '' });
+    });
+});
+
+// PUT Actualizar categoría (solo admin)
+app.put('/api/categorias/:id', authenticate, [
+    body('nombre').optional().notEmpty().trim().withMessage('El nombre no puede estar vacío'),
+    body('descripcion').optional().trim()
+], (req, res) => {
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Solo administradores pueden modificar categorías' });
+    }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { nombre, descripcion } = req.body;
+    const updates = [];
+    const values = [];
+
+    if (nombre) { updates.push('nombre = ?'); values.push(nombre); }
+    if (descripcion !== undefined) { updates.push('descripcion = ?'); values.push(descripcion); }
+
+    if (updates.length === 0) {
+        return res.status(400).json({ error: 'No hay campos para actualizar' });
+    }
+
+    values.push(req.params.id);
+    const sql = `UPDATE categorias SET ${updates.join(', ')} WHERE id = ?`;
+
+    db.run(sql, values, function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) return res.status(404).json({ error: 'Categoría no encontrada' });
+        db.get("SELECT * FROM categorias WHERE id = ?", [req.params.id], (err, row) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json(row);
+        });
+    });
+});
+
+// DELETE Eliminar categoría (solo admin, si no tiene alojamientos)
+app.delete('/api/categorias/:id', authenticate, (req, res) => {
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Solo administradores pueden eliminar categorías' });
+    }
+
+    // Verificar si tiene alojamientos asociados
+    db.get("SELECT COUNT(*) as count FROM alojamientos WHERE categoria_id = ?", [req.params.id], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (row && row.count > 0) {
+            return res.status(400).json({ error: 'No se puede eliminar categoría con alojamientos asociados' });
+        }
+
+        db.run("DELETE FROM categorias WHERE id = ?", [req.params.id], function (err) {
+            if (err) return res.status(500).json({ error: err.message });
+            if (this.changes === 0) return res.status(404).json({ error: 'Categoría no encontrada' });
+            res.json({ message: 'Categoría eliminada correctamente' });
+        });
     });
 });
 
@@ -193,6 +445,108 @@ app.post('/api/comentarios',
         db.run(sql, [alojamiento_id, usuario, texto, fecha], function (err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ id: this.lastID, alojamiento_id, usuario, texto, fecha });
+        });
+    }
+);
+
+// PUT Actualizar Comentario (PATCH-like - solo owner o admin) - T012
+app.put('/api/comentarios/:id',
+    authenticate,
+    [
+        body('texto').optional().notEmpty().trim().escape().withMessage('El texto no puede estar vacío'),
+        body('usuario').optional().trim().escape()
+    ],
+    (req, res) => {
+        // Validación de express-validator
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        // Verificar que el comentario existe
+        db.get("SELECT * FROM comentarios WHERE id = ?", [req.params.id], (err, row) => {
+            if (err) return res.status(500).json({ error: err.message });
+            if (!row) return res.status(404).json({ error: 'Comentario no encontrado' });
+
+            // Verificar permisos: owner o admin
+            const isOwner = req.user.username === row.usuario;
+            const isAdmin = req.user.role === 'admin';
+
+            if (!isOwner && !isAdmin) {
+                return res.status(403).json({ error: 'No autorizado. Solo el autor o un administrador pueden actualizar.' });
+            }
+
+            // Construir SQL dinámico basado en campos proporcionados
+            const updates = [];
+            const values = [];
+
+            if (req.body.texto !== undefined) {
+                updates.push("texto = ?");
+                values.push(req.body.texto);
+            }
+            if (req.body.usuario !== undefined) {
+                updates.push("usuario = ?");
+                values.push(req.body.usuario);
+            }
+
+            if (updates.length === 0) {
+                return res.status(400).json({ error: 'No se proporcionaron campos para actualizar' });
+            }
+
+            values.push(req.params.id);
+            const sql = `UPDATE comentarios SET ${updates.join(', ')} WHERE id = ?`;
+
+            db.run(sql, values, function (err) {
+                if (err) {
+                    return res.status(500).json({ error: err.message });
+                }
+
+                if (this.changes === 0) {
+                    return res.status(404).json({ error: 'Comentario no encontrado' });
+                }
+
+                // Retornar comentario actualizado
+                db.get("SELECT * FROM comentarios WHERE id = ?", [req.params.id], (err, updatedRow) => {
+                    if (err) return res.status(500).json({ error: err.message });
+                    res.status(200).json(updatedRow);
+                });
+            });
+        });
+    }
+);
+
+// DELETE Eliminar Comentario - T013
+app.delete('/api/comentarios/:id',
+    authenticate,
+    (req, res) => {
+        // Verificar que el comentario existe
+        db.get("SELECT * FROM comentarios WHERE id = ?", [req.params.id], (err, row) => {
+            if (err) return res.status(500).json({ error: err.message });
+            if (!row) return res.status(404).json({ error: 'Comentario no encontrado' });
+
+            // Verificar permisos: owner o admin
+            const isOwner = req.user.username === row.usuario;
+            const isAdmin = req.user.role === 'admin';
+
+            if (!isOwner && !isAdmin) {
+                return res.status(403).json({ error: 'No autorizado. Solo el autor o un administrador pueden eliminar.' });
+            }
+
+            // Ejecutar DELETE
+            db.run("DELETE FROM comentarios WHERE id = ?", [req.params.id], function (err) {
+                if (err) {
+                    return res.status(500).json({ error: err.message });
+                }
+
+                if (this.changes === 0) {
+                    return res.status(404).json({ error: 'Comentario no encontrado' });
+                }
+
+                res.status(200).json({ 
+                    message: 'Comentario eliminado correctamente', 
+                    id: req.params.id 
+                });
+            });
         });
     }
 );
