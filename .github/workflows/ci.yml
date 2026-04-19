@@ -65,7 +65,8 @@ jobs:
       - name: Check for syntax errors
         run: |
           cd backend
-          node -e "require('./server.js')" 2>&1 || echo "Syntax check via require"
+          # Solo verificar sintaxis, no ejecutar el servidor
+          node --check server.js || exit 1
 
       - name: Verify package.json is valid
         run: node -e "JSON.parse(require('fs').readFileSync('backend/package.json'))"
