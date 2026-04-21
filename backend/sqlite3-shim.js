@@ -160,6 +160,24 @@ class DatabaseShim {
         fn.call(this);
     }
 
+    // Persistir cambios al disco (llamar después de operaciones de escritura)
+    persist(callback) {
+        this._wait(() => {
+            try {
+                if (this.filename !== ':memory:' && this.db) {
+                    const fs = require('fs');
+                    const data = this.db.export();
+                    fs.writeFileSync(this.filename, Buffer.from(data));
+                    console.log('💾 Persistido a disco:', this.filename);
+                }
+                if (callback) process.nextTick(() => callback());
+            } catch (err) {
+                console.error('❌ Error persistiendo:', err.message);
+                if (callback) process.nextTick(() => callback(err));
+            }
+        });
+    }
+
     close(callback) {
         this._wait(() => {
             try {
@@ -167,7 +185,8 @@ class DatabaseShim {
                 if (this.filename !== ':memory:') {
                     const fs = require('fs');
                     const data = this.db.export();
-                    Buffer.from(data).copy(fs.createWriteStream(this.filename));
+                    fs.writeFileSync(this.filename, Buffer.from(data));
+                    console.log('💾 Persistido al cerrar:', this.filename);
                 }
                 this.db.close();
                 if (callback) process.nextTick(() => callback());

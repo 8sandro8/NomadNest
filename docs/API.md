@@ -2,7 +2,7 @@
 
 ## 1. Introducción
 
-La API de NomadNest es una REST API que permite gestionar categorías, alojamientos y comentarios. Proporciona autenticación mediante tokens JWT y un sistema de autenticación legacy.
+La API de NomadNest es una REST API que permite gestionar categorías, alojamientos y comentarios. Proporciona autenticación mediante tokens JWT.
 
 ### Base URL
 ```
@@ -13,28 +13,295 @@ http://localhost:3010
 Todas las respuestas son JSON.
 
 ### Autenticación
-La API soporta dos mecanismos de autenticación:
-- **JWT (Recomendado)**: Tokens Bearer en el header `Authorization`
-- **Legacy**: Header `x-admin-token: secret123` (para compatibilidad)
+La API utiliza **JWT (JSON Web Tokens)** para autenticar usuarios administradores.
+
+- **JWT**: Tokens Bearer en el header `Authorization`
+- **NO se soporta** el sistema legacy `x-admin-token: secret123` (eliminado por seguridad)
 
 ---
 
 ## 2. Autenticación
 
-### Sistema de Autenticación
+### Sistema de Autenticación JWT
 
-La API utiliza un middleware de autenticación dual que soporta tanto el token JWT como el sistema legacy.
+La API utiliza tokens JWT para autenticar usuarios administradores. El flujo es:
+
+1. **Login**: Enviar credenciales → Recibir token JWT
+2. **Usar token**: Incluir `Authorization: Bearer <token>` en requests protegidos
+3. **Verificar sesión**: Endpoint `/api/auth/me` para obtener datos del usuario actual
 
 #### Headers de Autenticación
 
 | Header | Valor | Uso |
 |--------|-------|-----|
-| `Authorization` | `Bearer <token_jwt>` | JWT (recomendado) |
-| `x-admin-token` | `secret123` | Legacy (admin) |
+| `Authorization` | `Bearer <token_jwt>` | JWT (requerido) |
 
 #### Roles
 - **Admin**: Acceso total a endpoints protegidos
 - **Usuario**: Acceso a comentarios y lectura pública
+
+#### Flujo de Autenticación
+
+```
+┌─────────────┐     POST /api/auth/login     ┌─────────────┐
+│   Cliente   │ ──────────────────────────► │   Backend   │
+│ (login.html)│                            │  (server.js)│
+│             │ ◄────────────────────────── │             │
+└─────────────┘   { token, user, role }     └─────────────┘
+      │                                        │
+      ▼ (guardar en localStorage)              ▼
+┌─────────────┐                               ┌─────────────┐
+│ localStorage│                               │   Database  │
+│ {token,user}│                               │  (usuarios) │
+└─────────────┘                               └─────────────┘
+
+┌─────────────┐     CRUD + Authorization     ┌─────────────┐
+│   Cliente   │ ──────────────────────────► │   Middleware│
+│  (app.js)   │  Authorization: Bearer ...  │ (checkAuth) │
+└─────────────┘                            └─────────────┘
+                                                │
+                                                ▼
+                                         ┌─────────────┐
+                                         │  Allow/Deny │
+                                         └─────────────┘
+```
+
+##### Paso a Paso
+
+1. **Obtener token**: Enviar credenciales a `POST /api/auth/login`
+2. **Guardar token**: Almacenar el token en localStorage del navegador
+3. **Usar token**: Incluir `Authorization: Bearer <token>` en cada request
+4. **Verificar sesión**: Usar `GET /api/auth/me` para obtener datos del usuario
+5. **Cerrar sesión**: Eliminar token del localStorage (logout)
+
+##### Manejo de Errores
+
+| Código | Significado | Acción del Cliente |
+|--------|-------------|-------------------|
+| 401 | Token expirado o inválido | Redirigir a login.html |
+| 403 | No tiene permisos | Mostrar mensaje de error |
+| 400 | Validación fallida | Mostrar errores de formulario |
+
+##### Ejemplo: Login desde JavaScript
+
+```javascript
+// Login
+const response = await fetch('/api/auth/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ username: 'admin', password: 'admin123' })
+});
+const data = await response.json();
+
+if (data.success) {
+  // Guardar token
+  localStorage.setItem('nomadnest_auth', JSON.stringify({
+    token: data.token,
+    user: data.user,
+    expiresAt: Date.now() + 3600000 // 1 hora
+  }));
+  
+  // Redirigir a página de admin
+  window.location.href = '/admin.html';
+}
+
+// Usar token en requests
+const headers = {
+  'Authorization': `Bearer ${data.token}`
+};
+
+// Verificar si está logueado
+function isLoggedIn() {
+  const auth = JSON.parse(localStorage.getItem('nomadnest_auth'));
+  return auth && auth.token && auth.expiresAt > Date.now();
+}
+
+// Logout
+function logout() {
+  localStorage.removeItem('nomadnest_auth');
+  window.location.href = '/login.html';
+}
+```
+
+---
+
+### Endpoints de Autenticación
+
+#### POST /api/auth/login
+
+Inicia sesión y obtener un token JWT.
+
+| 属性 | Valor |
+|------|-------|
+| Método | POST |
+| Autenticación | ❌ No requerida |
+| Content-Type | application/json |
+
+##### Request Body
+```json
+{
+  "username": "admin",
+  "password": "admin123"
+}
+```
+
+| Campo | Tipo | Requerido | Descripción |
+|-------|------|-----------|-------------|
+| username | string | ✅ | Nombre de usuario (mín. 3 caracteres) |
+| password | string | ✅ | Contraseña (mín. 6 caracteres) |
+
+##### Response Exitosa (200)
+```json
+{
+  "success": true,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": 1,
+    "username": "admin",
+    "role": "admin"
+  }
+}
+```
+
+##### Response Error (401)
+```json
+{
+  "success": false,
+  "error": "Credenciales inválidas"
+}
+```
+
+##### Response Validación (400)
+```json
+{
+  "errors": [
+    {
+      "type": "field",
+      "msg": "El nombre de usuario es obligatorio",
+      "path": "username",
+      "location": "body"
+    }
+  ]
+}
+```
+
+##### Ejemplo cURL
+```bash
+curl -X POST http://localhost:3010/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "admin123"}'
+```
+
+---
+
+#### GET /api/auth/me
+
+Obtiene los datos del usuario autenticado actualmente.
+
+| 属性 | Valor |
+|------|-------|
+| Método | GET |
+| Autenticación | ✅ Requiere JWT |
+| Content-Type | application/json |
+
+##### Headers
+```
+Authorization: Bearer <token_jwt>
+```
+
+##### Response Exitosa (200)
+```json
+{
+  "user": {
+    "id": 1,
+    "username": "admin",
+    "role": "admin"
+  }
+}
+```
+
+##### Response Error (401)
+```json
+{
+  "error": "Token requerido"
+}
+```
+o
+```json
+{
+  "error": "Token inválido o expirado"
+}
+```
+
+##### Ejemplo cURL
+```bash
+# Primero obtén el token con /api/auth/login, luego:
+curl -X GET http://localhost:3010/api/auth/me \
+  -H "Authorization: Bearer <tu_token_jwt>"
+```
+
+---
+
+#### POST /api/auth/logout
+
+Cierra la sesión del usuario (invalidar token del lado del cliente).
+
+| 属性 | Valor |
+|------|-------|
+| Método | POST |
+| Autenticación | ✅ Requiere JWT |
+| Content-Type | application/json |
+
+##### Headers
+```
+Authorization: Bearer <token_jwt>
+```
+
+##### Response Exitosa (200)
+```json
+{
+  "success": true,
+  "message": "Sesión cerrada correctamente"
+}
+```
+
+##### Notas
+- El logout se maneja del lado del cliente eliminando el token del localStorage
+- El servidor no mantiene blacklist de tokens (para simplificar)
+
+---
+
+#### POST /api/auth/refresh (Opcional)
+
+Renueva el token JWT antes de que expire.
+
+| 属性 | Valor |
+|------|-------|
+| Método | POST |
+| Autenticación | ✅ Requiere JWT válido |
+| Content-Type | application/json |
+
+##### Headers
+```
+Authorization: Bearer <token_jwt>
+```
+
+##### Response Exitosa (200)
+```json
+{
+  "success": true,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": 1,
+    "username": "admin",
+    "role": "admin"
+  }
+}
+```
+
+##### Notas
+- El token actual debe ser válido (no expirado)
+- Genera un nuevo token con 1 hora de validez
 
 ---
 
@@ -144,12 +411,12 @@ Crea un nuevo alojamiento. Requiere autenticación de administrador.
 | 属性 | Valor |
 |------|-------|
 | Método | POST |
-| Autenticación | ✅ Requiere admin (`x-admin-token: secret123`) |
+| Autenticación | ✅ Requiere JWT (role: admin) |
 | Content-Type | multipart/form-data |
 
 #### Headers
 ```
-x-admin-token: secret123
+Authorization: Bearer <token_jwt>
 ```
 
 #### Request Body (form-data)
@@ -182,8 +449,14 @@ x-admin-token: secret123
 
 #### Ejemplo cURL
 ```bash
+# Primero haz login para obtener el token:
+TOKEN=$(curl -s -X POST http://localhost:3010/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "admin123"}' | jq -r '.token')
+
+# Luego usa el token para crear el alojamiento:
 curl -X POST http://localhost:3010/api/alojamientos \
-  -H "x-admin-token: secret123" \
+  -H "Authorization: Bearer $TOKEN" \
   -F "nombre=Hotel Playa" \
   -F "descripcion=Hotel frente a la playa con vista al mar" \
   -F "precio=180" \
@@ -201,12 +474,12 @@ Actualiza el precio de un alojamiento. Requiere autenticación de administrador.
 | 属性 | Valor |
 |------|-------|
 | Método | PUT |
-| Autenticación | ✅ Requiere admin (`x-admin-token: secret123`) |
+| Autenticación | ✅ Requiere JWT (role: admin) |
 | Content-Type | application/json |
 
 #### Headers
 ```
-x-admin-token: secret123
+Authorization: Bearer <token_jwt>
 Content-Type: application/json
 ```
 
@@ -232,8 +505,12 @@ Content-Type: application/json
 
 #### Ejemplo cURL
 ```bash
+TOKEN=$(curl -s -X POST http://localhost:3010/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "admin123"}' | jq -r '.token')
+
 curl -X PUT http://localhost:3010/api/alojamientos/1 \
-  -H "x-admin-token: secret123" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"precio": 175.00}'
 ```
@@ -247,12 +524,12 @@ Elimina un alojamiento. Requiere autenticación de administrador.
 | 属性 | Valor |
 |------|-------|
 | Método | DELETE |
-| Autenticación | ✅ Requiere admin (`x-admin-token: secret123`) |
+| Autenticación | ✅ Requiere JWT (role: admin) |
 | Content-Type | application/json |
 
 #### Headers
 ```
-x-admin-token: secret123
+Authorization: Bearer <token_jwt>
 ```
 
 #### Response Exitosa (200)
@@ -269,8 +546,12 @@ x-admin-token: secret123
 
 #### Ejemplo cURL
 ```bash
+TOKEN=$(curl -s -X POST http://localhost:3010/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "admin123"}' | jq -r '.token')
+
 curl -X DELETE http://localhost:3010/api/alojamientos/1 \
-  -H "x-admin-token: secret123"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ---
@@ -380,12 +661,12 @@ Actualiza un comentario existente. Requiere autenticación (propietario o admin)
 | 属性 | Valor |
 |------|-------|
 | Método | PUT |
-| Autenticación | ✅ Requiere (`x-admin-token: secret123` o JWT) |
+| Autenticación | ✅ Requiere JWT (propietario o admin) |
 | Content-Type | application/json |
 
 #### Headers
 ```
-x-admin-token: secret123
+Authorization: Bearer <token_jwt>
 ```
 
 #### Request Body
@@ -420,8 +701,12 @@ x-admin-token: secret123
 
 #### Ejemplo cURL
 ```bash
+TOKEN=$(curl -s -X POST http://localhost:3010/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "admin123"}' | jq -r '.token')
+
 curl -X PUT http://localhost:3010/api/comentarios/1 \
-  -H "x-admin-token: secret123" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"texto": "Texto actualizado del comentario"}'
 ```
@@ -435,12 +720,12 @@ Elimina un comentario. Requiere autenticación (propietario o admin).
 | 属性 | Valor |
 |------|-------|
 | Método | DELETE |
-| Autenticación | ✅ Requiere (`x-admin-token: secret123` o JWT) |
+| Autenticación | ✅ Requiere JWT (propietario o admin) |
 | Content-Type | application/json |
 
 #### Headers
 ```
-x-admin-token: secret123
+Authorization: Bearer <token_jwt>
 ```
 
 #### Response Exitosa (200)
@@ -459,8 +744,12 @@ x-admin-token: secret123
 
 #### Ejemplo cURL
 ```bash
+TOKEN=$(curl -s -X POST http://localhost:3010/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "admin123"}' | jq -r '.token')
+
 curl -X DELETE http://localhost:3010/api/comentarios/1 \
-  -H "x-admin-token: secret123"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ---
@@ -532,10 +821,21 @@ curl -X POST http://localhost:3010/api/comentarios \
   -d '{"alojamiento_id": 1, "usuario": "testuser", "texto": "Gran experiencia"}'
 ```
 
-### 6. Crear un alojamiento (requiere admin)
+### 6. Iniciar sesión como admin
 ```bash
+curl -X POST http://localhost:3010/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "admin123"}'
+```
+Guarda el token recibido para los siguientes pasos.
+
+### 7. Crear un alojamiento (requiere auth)
+```bash
+# Establece el token primero:
+TOKEN="tu_token_aqui"
+
 curl -X POST http://localhost:3010/api/alojamientos \
-  -H "x-admin-token: secret123" \
+  -H "Authorization: Bearer $TOKEN" \
   -F "nombre=Test Hotel" \
   -F "descripcion=Hotel de prueba para testing de API" \
   -F "precio=99" \
@@ -543,32 +843,40 @@ curl -X POST http://localhost:3010/api/alojamientos \
   -F "categoria_id=1"
 ```
 
-### 7. Actualizar precio de alojamiento
+### 8. Actualizar precio de alojamiento
 ```bash
+TOKEN="tu_token_aqui"
+
 curl -X PUT http://localhost:3010/api/alojamientos/1 \
-  -H "x-admin-token: secret123" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"precio": 125.00}'
 ```
 
-### 8. Eliminar un alojamiento
+### 9. Eliminar un alojamiento
 ```bash
+TOKEN="tu_token_aqui"
+
 curl -X DELETE http://localhost:3010/api/alojamientos/1 \
-  -H "x-admin-token: secret123"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
-### 9. Actualizar un comentario (como admin)
+### 10. Actualizar un comentario (como admin)
 ```bash
+TOKEN="tu_token_aqui"
+
 curl -X PUT http://localhost:3010/api/comentarios/1 \
-  -H "x-admin-token: secret123" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"texto": "Comentario actualizado por admin"}'
 ```
 
-### 10. Eliminar un comentario (como admin)
+### 11. Eliminar un comentario (como admin)
 ```bash
+TOKEN="tu_token_aqui"
+
 curl -X DELETE http://localhost:3010/api/comentarios/1 \
-  -H "x-admin-token: secret123"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ---
@@ -584,10 +892,33 @@ Response:
 [{"id": 1, "nombre": "Hotel", "descripcion": "Hoteles tradicionales"}, ...]
 ```
 
-### Paso 2: Crear un alojamiento como admin
+### Paso 2: Iniciar sesión como admin
 ```bash
+curl -X POST http://localhost:3010/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "admin123"}'
+```
+Response:
+```json
+{
+  "success": true,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": 1,
+    "username": "admin",
+    "role": "admin"
+  }
+}
+```
+
+Guarda el token para usarlo en los siguientes pasos.
+
+### Paso 3: Crear un alojamiento como admin
+```bash
+TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
 curl -X POST http://localhost:3010/api/alojamientos \
-  -H "x-admin-token: secret123" \
+  -H "Authorization: Bearer $TOKEN" \
   -F "nombre=Hotel Playa" \
   -F "descripcion=Hotel frente a la playa con vistas al mar" \
   -F "precio=150" \
@@ -607,12 +938,12 @@ Response:
 }
 ```
 
-### Paso 3: Ver el alojamiento creado
+### Paso 4: Ver el alojamiento creado
 ```bash
 curl http://localhost:3010/api/alojamientos/10
 ```
 
-### Paso 4: Crear un comentario
+### Paso 5: Crear un comentario
 ```bash
 curl -X POST http://localhost:3010/api/comentarios \
   -H "Content-Type: application/json" \
@@ -629,15 +960,17 @@ Response:
 }
 ```
 
-### Paso 5: Ver comentarios del alojamiento
+### Paso 6: Ver comentarios del alojamiento
 ```bash
 curl http://localhost:3010/api/comentarios/10
 ```
 
-### Paso 6: Actualizar el precio como admin
+### Paso 7: Actualizar el precio como admin
 ```bash
+TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
 curl -X PUT http://localhost:3010/api/alojamientos/10 \
-  -H "x-admin-token: secret123" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"precio": 175}'
 ```
@@ -656,12 +989,12 @@ curl -X PUT http://localhost:3010/api/alojamientos/10 \
 - **Comentarios**: Usuario y texto obligatorios
 
 ### Autenticación JWT
-El proyecto incluye utilities JWT en `backend/utils/jwt.js` con:
+El proyecto utiliza utilities JWT en `backend/utils/jwt.js` con:
 - `generateAccessToken(userId)`: Token válido por 1 hora
 - `generateRefreshToken(userId)`: Token válido por 7 días
 - `verifyToken(token, isRefresh)`: Verificación de tokens
 
-El sistema de autenticación dual permite migrar gradualmente de `x-admin-token` a JWT.
+**Importante**: El sistema legacy `x-admin-token: secret123` fue eliminado por seguridad. Todas las operaciones administrativas requieren JWT.
 
 ---
 
@@ -671,3 +1004,13 @@ El sistema de autenticación dual permite migrar gradualmente de `x-admin-token`
 - JWT Utils: `backend/utils/jwt.js`
 - Frontend: `frontend/js/app.js`
 - Puerto por defecto: **3010**
+
+## 12. Changelog
+
+### 2026-04-21 - Actualización de Seguridad
+- Sistema de autenticación migrado de token hardcodeado a JWT
+- Nuevos endpoints: `/api/auth/login`, `/api/auth/me`, `/api/auth/logout`
+- Eliminación del sistema legacy `x-admin-token: secret123`
+- Todas las operaciones administrativas requieren `Authorization: Bearer <token>`
+- Nueva página de login: `frontend/login.html`
+- Nueva librería de autenticación: `frontend/js/auth.js`
