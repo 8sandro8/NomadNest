@@ -1,12 +1,8 @@
 // =============================================================================
-// NomadNest App.js - MVP Simplificado (Sin auth complejo)
+// NomadNest App.js - MVP Simplificado (JWT Auth)
 // =============================================================================
-// Token hardcodeado para operaciones admin (CRUD)
-const ADMIN_TOKEN = 'secret123';
-
-function getAdminHeaders() {
-    return { 'x-admin-token': ADMIN_TOKEN };
-}
+// Autenticación JWT mediante Auth library (frontend/js/auth.js)
+// Las funciones CRUD usan Auth.getAuthHeaders() para Authorization: Bearer <token>
 
 // --- I18N ---
 const translations = {
@@ -295,7 +291,7 @@ async function crearAlojamiento() {
     try {
         const respuesta = await fetch('http://localhost:3010/api/alojamientos', {
             method: 'POST',
-            headers: { ...getAdminHeaders() },
+            headers: { ...Auth.getAuthHeaders() },
             body: formData
         });
 
@@ -304,6 +300,8 @@ async function crearAlojamiento() {
             document.getElementById('form-crear').reset();
             cargarAlojamientos();
         } else {
+            // Manejar 401 - redirigir a login
+            if (await Auth.handleAuthError(respuesta)) return;
             const data = await respuesta.json();
             if (data.errors) {
                 let msg = "Errores de validación:\n";
@@ -318,11 +316,20 @@ async function crearAlojamiento() {
 
 window.borrarAlojamiento = async function (id) {
     if (confirm("¿Borrar alojamiento?")) {
-        await fetch(`http://localhost:3010/api/alojamientos/${id}`, {
+        const response = await fetch(`http://localhost:3010/api/alojamientos/${id}`, {
             method: 'DELETE',
-            headers: { ...getAdminHeaders() }
+            headers: { ...Auth.getAuthHeaders() }
         });
-        cargarAlojamientos();
+        
+        if (response.ok) {
+            alert("✅ Alojamiento eliminado correctamente");
+            cargarAlojamientos();
+        } else {
+            // Manejar 401 - redirigir a login
+            if (await Auth.handleAuthError(response)) return;
+            const errorData = await response.json().catch(() => ({ error: "Error desconocido" }));
+            alert("❌ Error al eliminar: " + (errorData.error || "Error HTTP " + response.status));
+        }
     }
 }
 
@@ -332,13 +339,15 @@ window.editarPrecio = async function (id, precioActual) {
         try {
             const respuesta = await fetch(`http://localhost:3010/api/alojamientos/${id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json', ...getAdminHeaders() },
+                headers: { 'Content-Type': 'application/json', ...Auth.getAuthHeaders() },
                 body: JSON.stringify({ precio: parseFloat(nuevoPrecio) })
             });
             if (respuesta.ok) {
                 alert("✅ Precio actualizado correctamente");
                 cargarAlojamientos();
             } else {
+                // Manejar 401 - redirigir a login
+                if (await Auth.handleAuthError(respuesta)) return;
                 alert("❌ Error al actualizar el precio");
             }
         } catch (error) { console.error(error); }

@@ -16,12 +16,14 @@ Básicamente es una web donde puedes ver alojamientos, filtrar por categorías y
     *   Subir fotos reales desde tu PC (usando `multer`).
     *   Dejar comentarios que se guardan de verdad.
     *   Mapa de ubicación (Google Maps).
+    *   Sistema de autenticación JWT para administración.
 
 ## 🛠️ Tecnologías
 *   HTML5 & CSS3
 *   JavaScript (ES6)
 *   Node.js & Express
 *   SQLite
+*   JWT (JSON Web Tokens) para autenticación
 *   Git & GitHub
 
 ## ⚙️ Cómo probarlo
@@ -43,9 +45,79 @@ Si quieres correrlo en tu ordenador:
     ```
 4.  Arranca el servidor:
     ```bash
-    node backend/server.js
+    cd backend
+    node server.js
     ```
 5.  Abre el navegador en `http://localhost:3000/frontend/index.html`.
+
+## 🔐 Cómo autenticarse
+
+El sistema usa autenticación JWT. Las credenciales por defecto son:
+
+| Usuario | Contraseña | Rol |
+|---------|------------|-----|
+| admin | admin123 | Administrador |
+
+### Pasos para probar el sistema completo:
+
+1.  **Inicia el backend** (si no lo has hecho):
+    ```bash
+    cd backend
+    node server.js
+    ```
+
+2.  **Abre la página de login**:
+    Ve a `http://localhost:3000/frontend/login.html`
+
+3.  **Inicia sesión**:
+    - Usuario: `admin`
+    - Contraseña: `admin123`
+    - Click en "Iniciar Sesión"
+
+4.  **Accede al panel de administración**:
+    Tras el login exitoso, serás redirigido a `admin.html` donde podrás:
+    - Crear nuevos alojamientos
+    - Editar precios
+    - Eliminar alojamientos
+    - Moderar comentarios
+
+### Probando la API con curl
+
+```bash
+# 1. Login para obtener token
+TOKEN=$(curl -s -X POST http://localhost:3010/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "admin123"}' | jq -r '.token')
+
+# 2. Ver datos del usuario actual
+curl -X GET http://localhost:3010/api/auth/me \
+  -H "Authorization: Bearer $TOKEN"
+
+# 3. Crear un alojamiento (requiere auth)
+curl -X POST http://localhost:3010/api/alojamientos \
+  -H "Authorization: Bearer $TOKEN" \
+  -F "nombre=Mi Cabaña" \
+  -F "descripcion=Una cabaña muy acogedora en el bosque" \
+  -F "precio=80" \
+  -F "wifi_speed=50" \
+  -F "categoria_id=2"
+```
+
+### Archivos del sistema de autenticación
+
+| Archivo | Descripción |
+|---------|-------------|
+| `backend/server.js` | Endpoints de autenticación (/api/auth/*) |
+| `backend/utils/jwt.js` | Utilidades JWT (generar/verificar tokens) |
+| `frontend/js/auth.js` | Librería cliente para gestionar auth |
+| `frontend/login.html` | Página de login |
+
+### Notas de seguridad
+
+- El token JWT expira después de **1 hora**
+- El sistema legacy `x-admin-token: secret123` fue eliminado por seguridad
+- Los tokens se almacenan en `localStorage` del navegador
+- Si el token expira, serás redirigido automáticamente a la página de login
 
 ---
 *Hecho por Sandro para el ciclo de DAM.* 💻⛺

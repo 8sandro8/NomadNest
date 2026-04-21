@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NomadNest - Panel de Administración</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Sora:wght@600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <i class="fa-solid fa-shield-halved"></i>
+                <h1>Panel de Administración</h1>
+                <p>NomadNest</p>
+            </div>
+            <div id="status-message" class="status-message">
+                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                <span>Verificando sesión...</span>
+            </div>
+            <div class="login-footer">
+                <a href="index.html"><i class="fa-solid fa-arrow-left"></i> Volver al inicio</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cargar auth.js -->
+    <script src="js/auth.js"></script>
+    <script>
+        // Verificar autenticación y redirigir
+        (function() {
+            const statusEl = document.getElementById('status-message');
+            
+            if (Auth.isLoggedIn()) {
+                // Usuario autenticado - redirigir a panel admin en index
+                statusEl.innerHTML = '<i class="fa-solid fa-check" style="color: var(--success-color)"></i><span style="color: var(--success-color)">Sesión válida</span>';
+                setTimeout(() => {
+                    window.location.href = 'index.html#admin-section';
+                }, 500);
+            } else {
+                // No autenticado - redirigir a login
+                statusEl.innerHTML = '<i class="fa-solid fa-exclamation-triangle" style="color: var(--warning-color)"></i><span style="color: var(--warning-color)">No autenticado</span>';
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1000);
+            }
+        })();
+    </script>
+</body>
+</html>

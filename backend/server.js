@@ -49,21 +49,15 @@ const checkAuth = (req, res, next) => {
             });
             return;
         } catch (e) {
-            // JWT inválido, intentar legacy
+            return res.status(401).json({ error: "Token inválido o expirado" });
         }
     }
     
-    // 2. Fallback legacy x-admin-token
-    const legacyToken = req.headers['x-admin-token'];
-    if (legacyToken === 'secret123') {
-        req.user = { userId: 1, username: 'admin', role: 'admin' };
-        next();
-    } else {
-        res.status(401).json({ error: "Acceso no autorizado. Se requiere ser Administrador." });
-    }
+    // No hay token o formato inválido
+    res.status(401).json({ error: "Token requerido. Usa Authorization: Bearer <token>" });
 };
 
-// Middleware dual: JWT REAL + legacy (soporta ambos para backward compatibility)
+// Middleware para verificar JWT con rol admin (solo JWT, sin legacy)
 const authenticate = (req, res, next) => {
     // 1. Intentar JWT real primero
     const authHeader = req.headers['authorization'];
@@ -80,19 +74,12 @@ const authenticate = (req, res, next) => {
             });
             return;
         } catch (e) {
-            // JWT inválido, intentar legacy
+            return res.status(401).json({ error: "Token inválido o expirado" });
         }
     }
     
-    // 2. Fallback legacy x-admin-token (para backward)
-    const legacyToken = req.headers['x-admin-token'];
-    if (legacyToken === 'secret123') {
-        req.user = { userId: 1, username: 'admin', role: 'admin' };
-        return next();
-    }
-    
-    // 3. Ambos fallaron
-    return res.status(401).json({ error: "Acceso no autorizado" });
+    // No hay token o formato inválido
+    res.status(401).json({ error: "Token requerido. Usa Authorization: Bearer <token>" });
 };
 
 // Middleware para verificar solo JWT (sin legacy)
@@ -124,7 +111,10 @@ const db = new Database(dbPath, (err) => {
 });
 
 // Habilitar claves foráneas
-db.run("PRAGMA foreign_keys = ON");
+db.run("PRAGMA foreign_keys = ON", function(err) {
+    if (err) console.error('❌ Error habilitando foreign_keys:', err.message);
+    else console.log('✅ Foreign keys activadas');
+});
 
 // Almacenamiento en memoria para refresh tokens(invalidados)
 const invalidatedRefreshTokens = new Set();
@@ -133,8 +123,8 @@ const invalidatedRefreshTokens = new Set();
 
 // POST /api/auth/login
 app.post('/api/auth/login', [
-    body('username').notEmpty().trim().withMessage('Usuario requerido'),
-    body('password').notEmpty().withMessage('Contraseña requerida')
+    body('username').trim().notEmpty().withMessage('Usuario requerido').isLength({ min: 3 }).withMessage('Usuario debe tener al menos 3 caracteres'),
+    body('password').notEmpty().withMessage('Contraseña requerida').isLength({ min: 6 }).withMessage('Contraseña debe tener al menos 6 caracteres')
 ], (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -247,7 +237,14 @@ app.post('/api/categorias', authenticate, [
 
     db.run("INSERT INTO categorias (nombre, descripcion) VALUES (?, ?)", [nombre, descripcion || ''], function (err) {
         if (err) return res.status(500).json({ error: err.message });
-        res.json({ id: this.lastID, nombre, descripcion: descripcion || '' });
+        db.persist((persistErr) => {
+            if (persistErr) {
+                console.error('❌ Error persistiendo INSERT categoría:', persistErr.message);
+                return res.status(500).json({ error: 'Error al guardar cambios' });
+            }
+            console.log('✅ INSERT persistido para categoría ID:', this.lastID);
+            res.json({ id: this.lastID, nombre, descripcion: descripcion || '' });
+        });
     });
 });
 
@@ -281,9 +278,16 @@ app.put('/api/categorias/:id', authenticate, [
     db.run(sql, values, function (err) {
         if (err) return res.status(500).json({ error: err.message });
         if (this.changes === 0) return res.status(404).json({ error: 'Categoría no encontrada' });
-        db.get("SELECT * FROM categorias WHERE id = ?", [req.params.id], (err, row) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json(row);
+        db.persist((persistErr) => {
+            if (persistErr) {
+                console.error('❌ Error persistiendo UPDATE categoría:', persistErr.message);
+                return res.status(500).json({ error: 'Error al guardar cambios' });
+            }
+            console.log('✅ UPDATE persistido para categoría ID:', req.params.id);
+            db.get("SELECT * FROM categorias WHERE id = ?", [req.params.id], (err, row) => {
+                if (err) return res.status(500).json({ error: err.message });
+                res.json(row);
+            });
         });
     });
 });
@@ -379,7 +383,14 @@ app.put('/api/alojamientos/:id', checkAuth, [
     db.run(sql, [req.body.precio, req.params.id], function (err) {
         if (err) return res.status(500).json({ error: err.message });
         if (this.changes === 0) return res.status(404).json({ message: "No encontrado" });
-        res.json({ message: "Precio actualizado correctamente" });
+        db.persist((persistErr) => {
+            if (persistErr) {
+                console.error('❌ Error persistiendo UPDATE precio:', persistErr.message);
+                return res.status(500).json({ error: 'Error al guardar cambios' });
+            }
+            console.log('✅ UPDATE precio persistido para alojamiento ID:', req.params.id);
+            res.json({ message: "Precio actualizado correctamente" });
+        });
     });
 });
 
@@ -409,10 +420,20 @@ app.put('/api/alojamientos/:id',
 // DELETE Eliminar Alojamiento (Protegido)
 app.delete('/api/alojamientos/:id', checkAuth, (req, res) => {
     const sql = "DELETE FROM alojamientos WHERE id = ?";
-    db.run(sql, req.params.id, function (err) {
+    db.run(sql, [req.params.id], function (err) {
         if (err) return res.status(500).json({ error: err.message });
-        if (this.changes === 0) return res.status(404).json({ message: "No encontrado" });
-        res.json({ message: "Eliminado correctamente" });
+        if (this.changes === 0) return res.status(404).json({ message: "Alojamiento no encontrado" });
+        
+        // Persistir cambios al disco después de DELETE
+        db.persist((persistErr) => {
+            if (persistErr) {
+                console.error('❌ Error persistiendo DELETE alojamiento:', persistErr.message);
+                return res.status(500).json({ error: "Error al guardar cambios" });
+            } else {
+                console.log('✅ DELETE persistido para alojamiento ID:', req.params.id);
+            }
+            res.json({ message: "Eliminado correctamente" });
+        });
     });
 });
 
@@ -554,5 +575,5 @@ app.delete('/api/comentarios/:id',
 // --- ARRANCAR SERVIDOR ---
 app.listen(PORT, () => {
     console.log(`🚀 API REST corriendo en http://localhost:${PORT}`);
-    console.log(`🔐 Admin Token: secret123`);
+    console.log(`🔐 Autenticación JWT activa (admin/admin123)`);
 });
