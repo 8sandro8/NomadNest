@@ -166,6 +166,12 @@
     text-decoration: underline;
 }
 
+/* Logo en login/admin */
+.login-logo {
+    height: 50px;
+    margin-bottom: 10px;
+}
+
 /* Register link */
 .register-link {
     text-align: center;
