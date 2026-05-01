@@ -165,3 +165,39 @@
 .login-footer a:hover {
     text-decoration: underline;
 }
+
+/* Register link */
+.register-link {
+    text-align: center;
+    margin-top: 1rem;
+    color: #666;
+}
+
+.register-link p {
+    margin: 0;
+}
+
+.register-link a {
+    color: #1a472a;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+}
+
+/* Success message */
+.success-message {
+    background: #efe;
+    color: #3a3;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    text-align: center;
+    display: none;
+}
+
+.success-message.show {
+    display: block;
+}
