@@ -190,6 +190,65 @@ app.post('/api/auth/refresh', [
     }
 });
 
+// POST /api/auth/register
+app.post('/api/auth/register', [
+    body('username').trim().notEmpty().withMessage('Usuario requerido').isLength({ min: 3 }).withMessage('El usuario debe tener al menos 3 caracteres'),
+    body('password').notEmpty().withMessage('Contraseña requerida').isLength({ min: 8 }).withMessage('La contraseña debe tener al menos 8 caracteres'),
+    body('confirmPassword').notEmpty().withMessage('Confirmar contraseña requerido')
+], (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, error: errors.array()[0].msg });
+    }
+
+    const { username, password, confirmPassword } = req.body;
+
+    // Validar que password y confirmPassword coincidan
+    if (password !== confirmPassword) {
+        return res.status(400).json({ success: false, error: 'Las contraseñas no coinciden' });
+    }
+
+    // Verificar si el usuario ya existe
+    db.get("SELECT id FROM usuarios WHERE username = ?", [username], (err, existingUser) => {
+        if (err) return res.status(500).json({ success: false, error: err.message });
+        if (existingUser) {
+            return res.status(409).json({ success: false, error: 'El nombre de usuario ya está en uso' });
+        }
+
+        // Hashear la contraseña
+        const salt = bcrypt.genSaltSync(10);
+        const passwordHash = bcrypt.hashSync(password, salt);
+
+        // Insertar nuevo usuario con rol 'user' por defecto
+        db.run("INSERT INTO usuarios (username, password_hash, role) VALUES (?, ?, ?)",
+            [username, passwordHash, 'user'],
+            function (err) {
+                if (err) return res.status(500).json({ success: false, error: err.message });
+
+                // Obtener el ID del usuario recién creado
+                db.get("SELECT id FROM usuarios WHERE username = ?", [username], (err, newUser) => {
+                    if (err) return res.status(500).json({ success: false, error: err.message });
+                    if (!newUser) return res.status(500).json({ success: false, error: 'Usuario no encontrado tras crear' });
+
+                    const newUserId = newUser.id;
+
+                    // Generar tokens para el nuevo usuario
+                    const accessToken = generateAccessToken(newUserId);
+                    const refreshToken = generateRefreshToken(newUserId);
+
+                    res.status(201).json({
+                        success: true,
+                        message: 'Usuario registrado correctamente',
+                        accessToken,
+                        refreshToken,
+                        user: { id: newUserId, username, role: 'user' }
+                    });
+                });
+            }
+        );
+    });
+});
+
 // POST /api/auth/logout
 app.post('/api/auth/logout', requireJWT, (req, res) => {
     const authHeader = req.headers['authorization'];

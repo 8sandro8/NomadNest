@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NomadNest - Registrarse</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Sora:wght@600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/login.css">
+    <style>
+        .register-link {
+            text-align: center;
+            margin-top: 1rem;
+            color: #666;
+        }
+        .register-link a {
+            color: #2c7a7b;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-header">
+            <i class="fa-solid fa-user-plus login-header-icon"></i>
+            <h1>Registrarse en NomadNest</h1>
+            <p>Crea tu cuenta para gestionar alojamientos</p>
+        </div>
+
+        <div id="error" class="error-message"></div>
+        <div id="success" class="success-message"></div>
+
+        <form id="register-form">
+            <div class="form-group">
+                <label for="username" class="form-group-label">Usuario</label>
+                <input type="text" id="username" name="username" required minlength="3" autocomplete="username" class="form-group-input" placeholder="Mínimo 3 caracteres">
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-group-label">Contraseña</label>
+                <input type="password" id="password" name="password" required minlength="8" autocomplete="new-password" class="form-group-input" placeholder="Mínimo 8 caracteres">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword" class="form-group-label">Confirmar Contraseña</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required minlength="8" autocomplete="new-password" class="form-group-input" placeholder="Repite tu contraseña">
+            </div>
+
+            <button type="submit" class="btn-login" id="btn-submit">Crear Cuenta</button>
+        </form>
+
+        <div class="register-link">
+            <a href="login.html"><i class="fa-solid fa-arrow-left"></i> Volver a Iniciar Sesión</a>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // Verificar si ya está logueado - redirigir a admin
+        if (Auth.isLoggedIn()) {
+            window.location.href = 'admin.html';
+        }
+
+        // Manejo del formulario de registro
+        const registerForm = document.getElementById('register-form');
+        const errorDiv = document.getElementById('error');
+        const successDiv = document.getElementById('success');
+        const btnSubmit = document.getElementById('btn-submit');
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Limpiar mensajes previos
+            errorDiv.classList.remove('show');
+            errorDiv.textContent = '';
+            successDiv.classList.remove('show');
+            successDiv.textContent = '';
+
+            // Validar que las contraseñas coincidan
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                errorDiv.textContent = 'Las contraseñas no coinciden';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            // Validar longitud mínima de contraseña
+            if (password.length < 8) {
+                errorDiv.textContent = 'La contraseña debe tener al menos 8 caracteres';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            // Deshabilitar botón durante registro
+            btnSubmit.disabled = true;
+            btnSubmit.textContent = 'Creando cuenta...';
+
+            const username = document.getElementById('username').value.trim();
+
+            try {
+                const response = await fetch('http://localhost:3010/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, confirmPassword })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    // Registro exitoso
+                    successDiv.textContent = '¡Cuenta creada exitosamente! Redirigiendo al login...';
+                    successDiv.classList.add('show');
+
+                    // Redirigir a login después de 2 segundos
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    // Mostrar error
+                    errorDiv.textContent = data.error || 'Error al crear la cuenta';
+                    errorDiv.classList.add('show');
+                }
+            } catch (error) {
+                console.error('Register error:', error);
+                errorDiv.textContent = 'Error de conexión. Intenta de nuevo.';
+                errorDiv.classList.add('show');
+            } finally {
+                // Reactivar botón
+                btnSubmit.disabled = false;
+                btnSubmit.textContent = 'Crear Cuenta';
+            }
+        });
+    </script>
+</body>
+</html>
