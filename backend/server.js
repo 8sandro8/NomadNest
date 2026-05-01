@@ -220,22 +220,29 @@ app.post('/api/auth/register', [
         const passwordHash = bcrypt.hashSync(password, salt);
 
         // Insertar nuevo usuario con rol 'user' por defecto
-        db.run("INSERT INTO usuarios (username, password_hash, role) VALUES (?, ?, ?)", 
-            [username, passwordHash, 'user'], 
+        db.run("INSERT INTO usuarios (username, password_hash, role) VALUES (?, ?, ?)",
+            [username, passwordHash, 'user'],
             function (err) {
                 if (err) return res.status(500).json({ success: false, error: err.message });
 
-                // Generar tokens para el nuevo usuario
-                const newUserId = this.lastID;
-                const accessToken = generateAccessToken(newUserId);
-                const refreshToken = generateRefreshToken(newUserId);
+                // Obtener el ID del usuario recién creado
+                db.get("SELECT id FROM usuarios WHERE username = ?", [username], (err, newUser) => {
+                    if (err) return res.status(500).json({ success: false, error: err.message });
+                    if (!newUser) return res.status(500).json({ success: false, error: 'Usuario no encontrado tras crear' });
 
-                res.status(201).json({
-                    success: true,
-                    message: 'Usuario registrado correctamente',
-                    accessToken,
-                    refreshToken,
-                    user: { id: newUserId, username, role: 'user' }
+                    const newUserId = newUser.id;
+
+                    // Generar tokens para el nuevo usuario
+                    const accessToken = generateAccessToken(newUserId);
+                    const refreshToken = generateRefreshToken(newUserId);
+
+                    res.status(201).json({
+                        success: true,
+                        message: 'Usuario registrado correctamente',
+                        accessToken,
+                        refreshToken,
+                        user: { id: newUserId, username, role: 'user' }
+                    });
                 });
             }
         );
