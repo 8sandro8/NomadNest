@@ -8,14 +8,17 @@
 const translations = {
     es: {
         nav_home: "Inicio",
-        nav_about: "Quiénes somos",
-        nav_nests: "Alojamientos",
+        nav_about: "Conócenos",
+        nav_products: "Productos",
         nav_contact: "Contacto",
+        nav_cart: "Carrito",
+        nav_profile: "Ver perfil",
+        nav_logout: "Cerrar sesión",
         hero_title: "Tu oficina en el bosque",
         hero_subtitle: "Cabañas con WiFi de alta velocidad en plena naturaleza.",
         hero_cta: "Explorar Nidos",
         about_title: "🌲 Nuestra Raíz",
-        about_p1: "NomadNest nació en Gallur de una necesidad sencilla: queríamos programar escuchando pájaros, no el tráfico.",
+        about_p1: "NomadNest nació en Gallur de una necesidad sencillos: queríamos programar escuchando pájaros, no el tráfico.",
         about_p2: "Nuestro objetivo es revitalizar la España Vaciada atrayendo talento digital. Convertimos antiguos refugios en oficinas de alto rendimiento, demostrando que con la formación de San Valero se puede trabajar para cualquier parte del mundo.",
         section_featured: "Nuestros Nidos Destacados",
         admin_title: "🛠️ Gestión de Nidos (CRUD)",
@@ -29,9 +32,12 @@ const translations = {
     },
     en: {
         nav_home: "Home",
-        nav_about: "Who we are",
-        nav_nests: "Lodgings",
+        nav_about: "About Us",
+        nav_products: "Products",
         nav_contact: "Contact",
+        nav_cart: "Cart",
+        nav_profile: "View Profile",
+        nav_logout: "Logout",
         hero_title: "Your office in the woods",
         hero_subtitle: "High-speed WiFi cabins in the middle of nature.",
         hero_cta: "Explore Nests",
@@ -435,26 +441,89 @@ const carousel = {
 
 // --- ACTUALIZAR BOTON USUARIO SEGUN AUTH ---
 function updateUserButton() {
+    const userMenu = document.getElementById('user-menu');
+    const userDropdown = document.getElementById('user-dropdown');
     const btnUser = document.getElementById('btn-user');
+    const btnLogin = document.getElementById('btn-login');
     const userBtnText = document.getElementById('user-btn-text');
-    if (!btnUser || !userBtnText) return;
+    const loginBtnText = document.getElementById('login-btn-text');
 
     if (Auth.isLoggedIn()) {
         const user = Auth.getUser();
-        btnUser.classList.add('logged-in');
-        userBtnText.textContent = user?.username || 'Mi Cuenta';
-        btnUser.href = '#';
-        btnUser.setAttribute('aria-label', `Cuenta de ${user?.username}`);
+        
+        // Ocultar botón login, mostrar dropdown de usuario
+        if (btnLogin) btnLogin.style.display = 'none';
+        if (userMenu) userMenu.style.display = 'flex';
+        
+        // Actualizar botón con nombre de usuario
+        if (btnUser) {
+            btnUser.classList.add('logged-in');
+            btnUser.href = '#';
+            if (userBtnText) userBtnText.textContent = user?.username || 'Mi Cuenta';
+            btnUser.setAttribute('aria-label', `Cuenta de ${user?.username}`);
+        }
     } else {
-        btnUser.classList.remove('logged-in');
-        userBtnText.textContent = 'Acceder';
-        btnUser.href = 'login.html';
-        btnUser.setAttribute('aria-label', 'Iniciar sesión');
+        // Mostrar botón login, ocultar dropdown
+        if (btnLogin) btnLogin.style.display = 'flex';
+        if (userMenu) userMenu.style.display = 'none';
+    }
+}
+
+// Toggle dropdown de usuario
+document.addEventListener('click', (e) => {
+    const userMenu = document.getElementById('user-menu');
+    const userDropdown = document.getElementById('user-dropdown');
+    const logoutBtn = document.getElementById('logout-btn');
+    
+    if (!userMenu || !userDropdown) return;
+
+    // Toggle dropdown al hacer click en el botón de usuario
+    if (e.target.closest('#btn-user') && Auth.isLoggedIn()) {
+        e.preventDefault();
+        userDropdown.classList.toggle('show');
+        e.stopPropagation();
+        return;
+    }
+
+    // Cerrar dropdown al hacer click fuera
+    if (!e.target.closest('#user-menu')) {
+        userDropdown.classList.remove('show');
+    }
+});
+
+// Logout handler
+document.addEventListener('DOMContentLoaded', () => {
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            performLogout();
+        });
+    }
+});
+
+// Función de logout
+function performLogout() {
+    // Limpiar token JWT
+    localStorage.removeItem('nomadnest_auth');
+    
+    // Actualizar botón a estado no logged in
+    updateUserButton();
+    
+    // Redirigir a login
+    window.location.href = 'login.html';
+}
+
+// Función helpers para carousel
+function scrollToSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
     }
 }
 
 // Ejecutar al cargar
-if (document.getElementById('btn-user')) {
+if (document.getElementById('btn-user') || document.getElementById('btn-login')) {
     updateUserButton();
 }
 

@@ -18,18 +18,34 @@
 
     <header class="main-header">
         <a href="#" class="logo-link">
-            <img src="img/logo.jpg" alt="NomadNest Logo" class="logo-img">
+            <img src="img/logo.svg" alt="NomadNest - Cabañas rurales con WiFi en la naturaleza" class="logo-img">
         </a>
         <nav class="main-nav">
             <ul class="nav-list">
-                <li><a href="#hero" class="nav-link" data-translate="nav_home">Inicio</a></li>
-                <li><a href="#about" class="nav-link" data-translate="nav_about">Quiénes somos</a></li>
-                <li><a href="#products" class="nav-link" data-translate="nav_nests">Alojamientos</a></li>
+                <li><a href="#about" class="nav-link" data-translate="nav_about">Conócenos</a></li>
+                <li><a href="#products" class="nav-link" data-translate="nav_products">Productos</a></li>
                 <li><a href="#contact" class="nav-link" data-translate="nav_contact">Contacto</a></li>
-                <li class="nav-item-user">
-                    <a href="login.html" id="btn-user" class="nav-user-btn" aria-label="Iniciar sesión">
+                <li class="nav-item-cart">
+                    <a href="#cart" class="nav-cart-btn" aria-label="Carrito">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span id="cart-btn-text">Carrito</span>
+                    </a>
+                </li>
+                <li class="nav-item-user" id="user-menu">
+                    <a href="#" id="btn-user" class="nav-user-btn" aria-label="Usuario" data-logged-in-only>
                         <i class="fa-solid fa-user"></i>
                         <span id="user-btn-text">Acceder</span>
+                    </a>
+                    <!-- Dropdown de usuario (visible cuando logueado) -->
+                    <div id="user-dropdown" class="user-dropdown-menu">
+                        <a href="admin.html" class="user-dropdown-item" data-translate="nav_profile">Ver perfil</a>
+                        <button id="logout-btn" class="user-dropdown-item danger" data-translate="nav_logout">Cerrar sesión</button>
+                    </div>
+                </li>
+                <li class="nav-item-login">
+                    <a href="login.html" id="btn-login" class="nav-user-btn nav-login-btn" aria-label="Iniciar sesión">
+                        <i class="fa-solid fa-user"></i>
+                        <span id="login-btn-text">Acceder</span>
                     </a>
                 </li>
                 <li>
@@ -48,32 +64,32 @@
         <section id="hero" class="hero-carousel" role="region" aria-label="Carrusel de destacados">
             <div class="carousel-container" aria-live="polite">
                 <!-- Slide 1 -->
-                <article class="carousel-slide active" aria-label="Slide 1: Tu oficina en el bosque">
+                <article class="carousel-slide active" aria-label="Slide 1: Bienvenido a NomadNest">
                     <img src="img/uploads/cabana1.jpg" alt="Cabaña en el bosque" class="slide-image">
                     <div class="slide-content">
-                        <h2 data-translate="hero_title" class="hero-title">Tu oficina en el bosque</h2>
-                        <p data-translate="hero_subtitle" class="hero-subtitle">Cabañas con WiFi de alta velocidad en plena naturaleza.</p>
-                        <button class="btn-primary" data-translate="hero_cta">Explorar Nidos</button>
+                        <h2 class="hero-title">Bienvenido a NomadNest</h2>
+                        <p class="hero-subtitle">Tu espacio de trabajo en plena naturaleza. Cabañas con WiFi de alta velocidad.</p>
+                        <button class="btn-primary" onclick="scrollToSection('products')">Ver Productos</button>
                     </div>
                 </article>
 
                 <!-- Slide 2 -->
-                <article class="carousel-slide" aria-label="Slide 2: Nature's WiFi">
+                <article class="carousel-slide" aria-label="Slide 2: Conócenos">
                     <img src="img/uploads/estudio1.jpg" alt="Estudio junto al lago" class="slide-image">
                     <div class="slide-content">
-                        <h2 class="hero-title">Nature's WiFi</h2>
-                        <p class="hero-subtitle">Conecta con lo esencial. Internet ultrarrápido sin perder conexión con la naturaleza.</p>
-                        <button class="btn-primary" data-translate="hero_cta">Ver Experiencias</button>
+                        <h2 class="hero-title">Conócenos</h2>
+                        <p class="hero-subtitle">Somos desarrolladores que transforman refugios rurales en oficinas de alto rendimiento.</p>
+                        <button class="btn-primary" onclick="scrollToSection('about')">Descubre Más</button>
                     </div>
                 </article>
 
                 <!-- Slide 3 -->
-                <article class="carousel-slide" aria-label="Slide 3: Code & Breathe">
+                <article class="carousel-slide" aria-label="Slide 3: Productos">
                     <img src="img/uploads/refugio1.jpg" alt="Refugio en montaña" class="slide-image">
                     <div class="slide-content">
-                        <h2 class="hero-title">Code & Breathe</h2>
-                        <p class="hero-subtitle">Desarrolla mientras escuchas pájaros. La oficina definitiva para remoto workers.</p>
-                        <button class="btn-primary" data-translate="hero_cta">Descubre Más</button>
+                        <h2 class="hero-title">Productos</h2>
+                        <p class="hero-subtitle">Cabañas, estudios y refugios diseñados para trabajar remoto desde la naturaleza.</p>
+                        <button class="btn-primary" onclick="scrollToSection('products')">Explorar Nidos</button>
                     </div>
                 </article>
 
