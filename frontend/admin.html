@@ -9,12 +9,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Sora:wght@600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/login.css">
 </head>
 <body class="login-page">
     <div class="login-container">
         <div class="login-card">
             <div class="login-header">
-                <i class="fa-solid fa-shield-halved"></i>
+                <i class="fa-solid fa-shield-halved login-header-icon"></i>
                 <h1>Panel de Administración</h1>
                 <p>NomadNest</p>
             </div>
@@ -37,13 +38,13 @@
             
             if (Auth.isLoggedIn()) {
                 // Usuario autenticado - redirigir a panel admin en index
-                statusEl.innerHTML = '<i class="fa-solid fa-check" style="color: var(--success-color)"></i><span style="color: var(--success-color)">Sesión válida</span>';
+                statusEl.innerHTML = '<i class="fa-solid fa-check status-message-icon"></i><span class="status-message-text status-success">Sesión válida</span>';
                 setTimeout(() => {
                     window.location.href = 'index.html#admin-section';
                 }, 500);
             } else {
                 // No autenticado - redirigir a login
-                statusEl.innerHTML = '<i class="fa-solid fa-exclamation-triangle" style="color: var(--warning-color)"></i><span style="color: var(--warning-color)">No autenticado</span>';
+                statusEl.innerHTML = '<i class="fa-solid fa-exclamation-triangle status-message-icon"></i><span class="status-message-text status-warning">No autenticado</span>';
                 setTimeout(() => {
                     window.location.href = 'login.html';
                 }, 1000);

@@ -26,6 +26,12 @@
                 <li><a href="#about" class="nav-link" data-translate="nav_about">Quiénes somos</a></li>
                 <li><a href="#products" class="nav-link" data-translate="nav_nests">Alojamientos</a></li>
                 <li><a href="#contact" class="nav-link" data-translate="nav_contact">Contacto</a></li>
+                <li class="nav-item-user">
+                    <a href="login.html" id="btn-user" class="nav-user-btn" aria-label="Iniciar sesión">
+                        <i class="fa-solid fa-user"></i>
+                        <span id="user-btn-text">Acceder</span>
+                    </a>
+                </li>
                 <li>
                     <label for="language-selector" class="visually-hidden">Seleccionar idioma</label>
                     <select id="language-selector" class="lang-select" aria-label="Seleccionar idioma">
@@ -157,16 +163,35 @@
 
         <section id="contact" class="contact-section">
             <div class="contact-container">
-                <div class="contact-info">
+                <div class="contact-form-wrapper">
                     <h2 class="contact-subtitle" data-translate="contact_title">📍 Encuentra tu Norte</h2>
                     <p class="contact-desc" data-translate="contact_desc">
                         Ven a visitarnos y tómate un café mientras planeas tu próxima escapada.
                     </p>
 
+                    <form id="form-contacto" class="contact-form" novalidate>
+                        <div class="form-group">
+                            <label for="contacto-nombre" class="form-label">Nombre</label>
+                            <input type="text" id="contacto-nombre" name="nombre" class="form-input" placeholder="Tu nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contacto-email" class="form-label">Email</label>
+                            <input type="email" id="contacto-email" name="email" class="form-input" placeholder="tu@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contacto-mensaje" class="form-label">Mensaje</label>
+                            <textarea id="contacto-mensaje" name="mensaje" class="form-input form-textarea" placeholder="¿En qué podemos ayudarte?" required></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary">Enviar Mensaje</button>
+                        <p id="contacto-status" class="form-status"></p>
+                    </form>
+                </div>
+
+                <div class="contact-info-wrapper">
                     <div class="contact-item">
                         <div class="contact-icon"><i class="fa-solid fa-location-dot"></i></div>
                         <div>
-                            <strong>Oficia Central</strong><br>
+                            <strong>Oficina Central</strong><br>
                             C. Mayor, 1, 50650 Gallur, Zaragoza
                         </div>
                     </div>
@@ -186,13 +211,13 @@
                             +34 600 123 456
                         </div>
                     </div>
-                </div>
 
-                <div class="map-wrapper">
-                    <iframe class="map-iframe"
-                        src="https://www.openstreetmap.org/export/embed.html?bbox=-1.3653,41.8372,-1.2653,41.8972&amp;layer=mapnik&amp;marker=41.8672,-1.3153"
-                        allowfullscreen="" loading="lazy">
-                    </iframe>
+                    <div class="map-wrapper">
+                        <iframe class="map-iframe"
+                            src="https://www.openstreetmap.org/export/embed.html?bbox=-1.3653,41.8372,-1.2653,41.8972&amp;layer=mapnik&amp;marker=41.8672,-1.3153"
+                            allowfullscreen="" loading="lazy">
+                        </iframe>
+                    </div>
                 </div>
             </div>
         </section>

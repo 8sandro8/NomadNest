@@ -433,6 +433,69 @@ const carousel = {
     }
 };
 
+// --- ACTUALIZAR BOTON USUARIO SEGUN AUTH ---
+function updateUserButton() {
+    const btnUser = document.getElementById('btn-user');
+    const userBtnText = document.getElementById('user-btn-text');
+    if (!btnUser || !userBtnText) return;
+
+    if (Auth.isLoggedIn()) {
+        const user = Auth.getUser();
+        btnUser.classList.add('logged-in');
+        userBtnText.textContent = user?.username || 'Mi Cuenta';
+        btnUser.href = '#';
+        btnUser.setAttribute('aria-label', `Cuenta de ${user?.username}`);
+    } else {
+        btnUser.classList.remove('logged-in');
+        userBtnText.textContent = 'Acceder';
+        btnUser.href = 'login.html';
+        btnUser.setAttribute('aria-label', 'Iniciar sesión');
+    }
+}
+
+// Ejecutar al cargar
+if (document.getElementById('btn-user')) {
+    updateUserButton();
+}
+
+// --- FORMULARIO DE CONTACTO ---
+const formContacto = document.getElementById('form-contacto');
+if (formContacto) {
+    formContacto.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const statusEl = document.getElementById('contacto-status');
+        const nombre = document.getElementById('contacto-nombre').value.trim();
+        const email = document.getElementById('contacto-email').value.trim();
+        const mensaje = document.getElementById('contacto-mensaje').value.trim();
+
+        // Validación frontend
+        if (!nombre || !email || !mensaje) {
+            statusEl.textContent = 'Por favor, rellena todos los campos.';
+            statusEl.className = 'form-status error';
+            return;
+        }
+
+        // Validación básica de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            statusEl.textContent = 'Por favor, introduce un email válido.';
+            statusEl.className = 'form-status error';
+            return;
+        }
+
+        // Simular envío (no hay backend para esto)
+        statusEl.textContent = '¡Gracias por contactarnos! Te responderemos pronto.';
+        statusEl.className = 'form-status success';
+        formContacto.reset();
+
+        // Ocultar mensaje después de 5 segundos
+        setTimeout(() => {
+            statusEl.textContent = '';
+            statusEl.className = 'form-status';
+        }, 5000);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     carousel.init();
 });
