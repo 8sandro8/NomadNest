@@ -4,14 +4,15 @@ node_modules/
 # Variables de entorno (sensitive)
 backend/.env
 
-# Base de datos 
+# Base de datos
 *.sqlite
 *.db
+*.db-shm
+*.db-wal
 
 # Archivos del sistema
 .DS_Store
 Thumbs.db
-
 *.log
 
 # Configuraciones y documentación de AI
@@ -20,3 +21,30 @@ agents.md
 AGENTS.md
 PRD.md
 SDD.md
+
+# Archivos del agente SDD
+.agent/
+
+# Configuraciones de editor
+.vscode/
+
+# Archivos de asignatura (AA1/LM/Entornos)
+AA1/
+
+# Backups y digitalización
+Backups/
+Digitalización/
+
+# Scripts de test y debug
+test-*.ps1
+test-*.js
+backend/check-*.js
+backend/debug_*.js
+backend/test-*.js
+
+# PDF de defensa
+📋*
+
+# Node modules del root (si hay)
+package-lock.json
+npm-debug.log
