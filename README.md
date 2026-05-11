@@ -58,7 +58,7 @@ El sistema usa autenticación JWT. Las credenciales por defecto son:
 | Usuario | Contraseña | Rol |
 |---------|------------|-----|
 | admin | admin123 | Administrador |
-| sandro | sandro89 | Usuario |
+| sandro | sandro123 | Usuario |
 
 ### Pasos para probar el sistema completo:
 
