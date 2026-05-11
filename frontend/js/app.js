@@ -100,6 +100,22 @@ document.addEventListener('DOMContentLoaded', () => {
             changeLanguage(e.target.value);
         });
     }
+    
+    // Handlers para editar comentario
+    const formEditar = document.getElementById('form-editar-comentario');
+    if (formEditar) {
+        formEditar.addEventListener('submit', (e) => {
+            e.preventDefault();
+            editarComentario();
+        });
+    }
+    
+    const btnCancelar = document.getElementById('btn-cancelar-editar');
+    if (btnCancelar) {
+        btnCancelar.addEventListener('click', () => {
+            ocultarFormularioEditar();
+        });
+    }
 });
 
 // --- I18N ---
@@ -143,13 +159,19 @@ async function cargarCategorias() {
         const res = await fetch('http://localhost:3010/api/categorias');
         const categorias = await res.json();
         const select = document.getElementById('categoria');
-        select.innerHTML = '<option value="">Selecciona una categoría...</option>';
-        categorias.forEach(cat => {
-            const option = document.createElement('option');
-            option.value = cat.id;
-            option.textContent = cat.nombre;
-            select.appendChild(option);
-        });
+        if (select) {
+            select.innerHTML = '<option value="">Selecciona una categoría...</option>';
+            categorias.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.textContent = cat.nombre;
+                select.appendChild(option);
+            });
+        }
+        // También cargar panel de administración de categorías
+        if (document.getElementById('categorias-lista')) {
+            cargarCategoriasAdmin();
+        }
     } catch (error) {
         console.error("Error cargando categorías:", error);
     }
@@ -235,19 +257,107 @@ async function cargarComentarios(idAlojamiento) {
             return;
         }
 
+        const currentUser = Auth.getUser();
+
         comentarios.forEach(c => {
             const item = document.createElement('div');
             item.className = 'comment-item-styled';
+            item.id = `comment-${c.id}`;
+            
+            // Verificar si el usuario actual puede editar/eliminar
+            const canModify = currentUser && (currentUser.username === c.usuario || currentUser.role === 'admin');
+            
             item.innerHTML = `
                 <div class="comment-header-styled">
                     <strong class="comment-author-styled">${c.usuario}</strong>
                     <span class="comment-date-styled">${c.fecha}</span>
                 </div>
                 <p class="comment-body-styled">${c.texto}</p>
+                ${canModify ? `
+                <div class="comment-actions">
+                    <button class="btn-comment-edit" onclick="mostrarEditarComentario(${c.id}, '${c.texto.replace(/'/g, "\\'")}')">✏️ Editar</button>
+                    <button class="btn-comment-delete" onclick="eliminarComentario(${c.id})">🗑️ Eliminar</button>
+                </div>
+                ` : ''}
             `;
             lista.appendChild(item);
         });
     } catch (error) { console.error(error); }
+}
+
+// --- EDITAR COMENTARIO ---
+window.mostrarEditarComentario = function(id, textoActual) {
+    const formEditar = document.getElementById('form-editar-comentario');
+    const formPublicar = document.getElementById('form-comentario');
+    
+    document.getElementById('edit-comentario-id').value = id;
+    document.getElementById('edit-comentario-texto').value = textoActual;
+    
+    formEditar.classList.remove('hidden');
+    formPublicar.classList.add('hidden');
+};
+
+window.editarComentario = async function() {
+    const id = document.getElementById('edit-comentario-id').value;
+    const texto = document.getElementById('edit-comentario-texto').value.trim();
+    
+    if (!texto) {
+        alert('El texto no puede estar vacío');
+        return;
+    }
+    
+    try {
+        const res = await fetch(`http://localhost:3010/api/comentarios/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', ...Auth.getAuthHeaders() },
+            body: JSON.stringify({ texto })
+        });
+        
+        if (res.ok) {
+            alert('✅ Comentario actualizado');
+            ocultarFormularioEditar();
+            const params = new URLSearchParams(window.location.search);
+            cargarComentarios(params.get('id'));
+        } else {
+            if (await Auth.handleAuthError(res)) return;
+            const data = await res.json();
+            alert('❌ ' + (data.error || 'Error al actualizar'));
+        }
+    } catch (error) {
+        console.error(error);
+        alert('❌ Error al actualizar comentario');
+    }
+};
+
+window.eliminarComentario = async function(id) {
+    if (!confirm('¿Eliminar este comentario?')) return;
+    
+    try {
+        const res = await fetch(`http://localhost:3010/api/comentarios/${id}`, {
+            method: 'DELETE',
+            headers: { ...Auth.getAuthHeaders() }
+        });
+        
+        if (res.ok) {
+            alert('✅ Comentario eliminado');
+            const params = new URLSearchParams(window.location.search);
+            cargarComentarios(params.get('id'));
+        } else {
+            if (await Auth.handleAuthError(res)) return;
+            const data = await res.json();
+            alert('❌ ' + (data.error || 'Error al eliminar'));
+        }
+    } catch (error) {
+        console.error(error);
+        alert('❌ Error al eliminar comentario');
+    }
+};
+
+function ocultarFormularioEditar() {
+    const formEditar = document.getElementById('form-editar-comentario');
+    const formPublicar = document.getElementById('form-comentario');
+    if (formEditar) formEditar.classList.add('hidden');
+    if (formPublicar) formPublicar.classList.remove('hidden');
 }
 
 // --- COMENTARIOS ---
@@ -359,6 +469,146 @@ window.editarPrecio = async function (id, precioActual) {
         } catch (error) { console.error(error); }
     }
 };
+
+// --- CRUD CATEGORÍAS (Admin) ---
+async function cargarCategoriasAdmin() {
+    try {
+        const res = await fetch('http://localhost:3010/api/categorias');
+        const categorias = await res.json();
+        const lista = document.getElementById('categorias-lista');
+        if (!lista) return;
+        
+        lista.innerHTML = '';
+        categorias.forEach(cat => {
+            const card = document.createElement('div');
+            card.className = 'categoria-card';
+            card.innerHTML = `
+                <div class="categoria-card-header">
+                    <span class="categoria-nombre">${cat.nombre}</span>
+                </div>
+                ${cat.descripcion ? `<p class="categoria-descripcion">${cat.descripcion}</p>` : ''}
+                <div class="categoria-acciones">
+                    <button class="btn-secondary" onclick="editarCategoria(${cat.id}, '${cat.nombre}', '${cat.descripcion || ''}')">✏️ Editar</button>
+                    <button class="btn-secondary" style="background: var(--color-error)" onclick="eliminarCategoria(${cat.id})">🗑️ Eliminar</button>
+                </div>
+            `;
+            lista.appendChild(card);
+        });
+    } catch (error) {
+        console.error("Error cargando categorías:", error);
+    }
+}
+
+window.editarCategoria = async function(id, nombreActual, descripcionActual) {
+    const nuevoNombre = prompt('Nombre de la categoría:', nombreActual);
+    if (!nuevoNombre || nuevoNombre === nombreActual) return;
+    
+    const nuevaDesc = prompt('Descripción:', descripcionActual) || '';
+    
+    try {
+        const res = await fetch(`http://localhost:3010/api/categorias/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', ...Auth.getAuthHeaders() },
+            body: JSON.stringify({ nombre: nuevoNombre, descripcion: nuevaDesc })
+        });
+        
+        if (res.ok) {
+            alert('✅ Categoría actualizada');
+            cargarCategoriasAdmin();
+        } else {
+            const data = await res.json();
+            alert('❌ Error: ' + (data.error || data.errors?.[0]?.msg || 'Desconocido'));
+        }
+    } catch (error) {
+        console.error(error);
+        alert('❌ Error al actualizar categoría');
+    }
+};
+
+window.eliminarCategoria = async function(id) {
+    if (!confirm('¿Eliminar esta categoría?')) return;
+    
+    try {
+        const res = await fetch(`http://localhost:3010/api/categorias/${id}`, {
+            method: 'DELETE',
+            headers: { ...Auth.getAuthHeaders() }
+        });
+        
+        if (res.ok) {
+            alert('✅ Categoría eliminada');
+            cargarCategoriasAdmin();
+        } else {
+            const data = await res.json();
+            alert('❌ ' + (data.error || 'No se puede eliminar'));
+        }
+    } catch (error) {
+        console.error(error);
+        alert('❌ Error al eliminar categoría');
+    }
+};
+
+// Inicializar gestión de categorías si existe el formulario
+document.addEventListener('DOMContentLoaded', () => {
+    // Toggle mostrar/ocultar formulario de categoría
+    const btnNuevaCat = document.getElementById('btn-nueva-categoria');
+    const formCat = document.getElementById('form-categoria');
+    const btnCancelar = document.getElementById('btn-cancelar-categoria');
+    
+    if (btnNuevaCat && formCat) {
+        btnNuevaCat.addEventListener('click', () => {
+            formCat.classList.remove('hidden');
+            document.getElementById('cat-nombre').value = '';
+            document.getElementById('cat-descripcion').value = '';
+        });
+    }
+    
+    if (btnCancelar && formCat) {
+        btnCancelar.addEventListener('click', () => {
+            formCat.classList.add('hidden');
+        });
+    }
+    
+    // Submit formulario categoría
+    const formCategoria = document.getElementById('form-categoria');
+    if (formCategoria) {
+        formCategoria.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nombre = document.getElementById('cat-nombre').value.trim();
+            const descripcion = document.getElementById('cat-descripcion').value.trim();
+            
+            if (!nombre) {
+                alert('El nombre es obligatorio');
+                return;
+            }
+            
+            try {
+                const res = await fetch('http://localhost:3010/api/categorias', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...Auth.getAuthHeaders() },
+                    body: JSON.stringify({ nombre, descripcion })
+                });
+                
+                if (res.ok) {
+                    alert('✅ Categoría creada');
+                    formCategoria.classList.add('hidden');
+                    formCategoria.reset();
+                    cargarCategoriasAdmin();
+                } else {
+                    const data = await res.json();
+                    alert('❌ ' + (data.error || data.errors?.[0]?.msg || 'Error'));
+                }
+            } catch (error) {
+                console.error(error);
+                alert('❌ Error al crear categoría');
+            }
+        });
+    }
+    
+    // Cargar categorías si existe la lista
+    if (document.getElementById('categorias-lista')) {
+        cargarCategoriasAdmin();
+    }
+});
 
 // =============================================================================
 // CARRUSEL - Lógica JavaScript

@@ -175,6 +175,33 @@
 
                 <button type="submit" class="btn-primary btn-block" data-translate="admin_btn">Guardar Nuevo Nido</button>
             </form>
+
+            <!-- Sección de Gestión de Categorías -->
+            <div id="admin-categorias" class="admin-categorias">
+                <h3 class="section-title text-center">🏷️ Gestión de Categorías</h3>
+                <div class="categorias-header">
+                    <button id="btn-nueva-categoria" class="btn-secondary">+ Nueva Categoría</button>
+                </div>
+                
+                <!-- Formulario para crear/editar categoría (oculto por defecto) -->
+                <form id="form-categoria" class="categoria-form hidden" aria-label="Formulario de categoría">
+                    <div class="form-field">
+                        <label for="cat-nombre" class="form-label">Nombre</label>
+                        <input type="text" id="cat-nombre" class="form-input" placeholder="Nombre de categoría" required>
+                    </div>
+                    <div class="form-field">
+                        <label for="cat-descripcion" class="form-label">Descripción</label>
+                        <input type="text" id="cat-descripcion" class="form-input" placeholder="Descripción (opcional)">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Guardar</button>
+                        <button type="button" id="btn-cancelar-categoria" class="btn-secondary">Cancelar</button>
+                    </div>
+                </form>
+
+                <!-- Lista de categorías -->
+                <div id="categorias-lista" class="categorias-lista"></div>
+            </div>
         </section>
 
         <section id="contact" class="contact-section">
